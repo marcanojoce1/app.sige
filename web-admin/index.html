@@ -7,32 +7,30 @@
   :root{
     --navy-50:#EAF0F6; --navy-100:#C7D7E8; --navy-300:#5A85AE; --navy-500:#2C5578;
     --navy-700:#1B3A54; --navy-900:#0F2537;
-    --amber-50:#FDF3E3; --amber-300:#E9AF4B; --amber-500:#C98A22; --amber-700:#8F6112;
+    --amber-500:#C98A22; --amber-700:#8F6112;
     --paper:#F6F4EF; --card:#FFFFFF; --line:#E1DED4;
     --ink:#20242B; --ink-soft:#5B6270; --ink-mute:#8A8F99;
     --green-bg:#E6F3E9; --green-tx:#1E6B3A;
     --red-bg:#FBEAEA; --red-tx:#A32D2D;
-    --amber-bg:#FDF0DD; --amber-tx:#8F6112;
   }
   *{box-sizing:border-box;}
   body{margin:0;font-family:'Segoe UI',Roboto,-apple-system,Arial,sans-serif;background:var(--paper);color:var(--ink);}
-  #login{min-height:600px;display:flex;align-items:center;justify-content:center;background:
-    linear-gradient(180deg,var(--navy-900) 0%, var(--navy-700) 100%);}
+  #login{min-height:600px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--navy-900) 0%, var(--navy-700) 100%);}
   .login-box{width:360px;background:var(--card);border-radius:10px;padding:36px 32px;box-shadow:0 20px 50px rgba(0,0,0,.35);}
   .login-mark{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
   .login-mark .sq{width:34px;height:34px;border-radius:8px;background:var(--navy-700);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;font-family:Georgia,serif;}
   .login-mark .name{font-family:Georgia,serif;font-size:19px;font-weight:700;color:var(--navy-900);}
-  .login-sub{font-size:12.5px;color:var(--ink-mute);margin:0 0 26px 44px;letter-spacing:.02em;}
-  .field{margin-bottom:16px;}
+  .login-sub{font-size:12.5px;color:var(--ink-mute);margin:0 0 26px 44px;}
+  .field{margin-bottom:14px;}
   .field label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:5px;font-weight:600;}
-  .field input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:6px;font-size:13.5px;background:#FBFAF7;color:var(--ink);}
-  .field input:focus{outline:none;border-color:var(--navy-300);}
+  .field input,.field select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:6px;font-size:13.5px;background:#FBFAF7;color:var(--ink);}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--navy-300);}
   .btn-primary{width:100%;padding:11px;border:none;border-radius:6px;background:var(--navy-700);color:#fff;font-size:13.5px;font-weight:600;cursor:pointer;margin-top:6px;}
   .btn-primary:hover{background:var(--navy-900);}
   .login-hint{margin-top:16px;font-size:11px;color:var(--ink-mute);text-align:center;}
   #app{display:none;min-height:640px;}
   .shell{display:grid;grid-template-columns:230px 1fr;min-height:640px;}
-  .side{background:var(--navy-900);color:#EDEFF2;padding:18px 0;display:flex;flex-direction:column;}
+  .side{background:var(--navy-900);color:#EDEFF2;padding:18px 0;display:flex;flex-direction:column;position:sticky;top:0;align-self:start;}
   .side-brand{display:flex;align-items:center;gap:9px;padding:0 18px 18px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:10px;}
   .side-brand .sq{width:28px;height:28px;border-radius:7px;background:var(--amber-500);color:var(--navy-900);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12.5px;font-family:Georgia,serif;}
   .side-brand .name{font-family:Georgia,serif;font-size:15.5px;font-weight:700;}
@@ -40,7 +38,7 @@
   .side a{display:flex;align-items:center;gap:10px;padding:8px 18px;font-size:13px;color:#D7DEE6;text-decoration:none;cursor:pointer;border-left:3px solid transparent;}
   .side a:hover{background:rgba(255,255,255,.05);}
   .side a.active{background:rgba(255,255,255,.09);border-left-color:var(--amber-500);color:#fff;font-weight:600;}
-  .main{padding:22px 30px 40px;overflow:auto;}
+  .main{padding:22px 30px 60px;overflow:auto;}
   .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;}
   .topbar h1{font-family:Georgia,serif;font-size:21px;margin:0;color:var(--navy-900);}
   .topbar .who{font-size:12.5px;color:var(--ink-soft);text-align:right;}
@@ -54,10 +52,28 @@
   .tag{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;}
   .tag.green{background:var(--green-bg);color:var(--green-tx);}
   .tag.gray{background:#EFEDE6;color:var(--ink-soft);}
-  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .tag.red{background:var(--red-bg);color:var(--red-tx);}
+  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;flex-wrap:wrap;}
   .toolbar input[type=text]{padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:12.8px;width:220px;background:#FBFAF7;}
-  .btn-ghost{padding:8px 14px;border:1px solid var(--navy-300);border-radius:6px;background:#fff;color:var(--navy-700);font-size:12.5px;font-weight:600;cursor:pointer;}
+  .btn-ghost{padding:7px 12px;border:1px solid var(--navy-300);border-radius:6px;background:#fff;color:var(--navy-700);font-size:12px;font-weight:600;cursor:pointer;}
   .btn-amber{padding:8px 14px;border:none;border-radius:6px;background:var(--amber-500);color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;}
+  .btn-amber:hover{background:var(--amber-700);}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .msg{font-size:12px;padding:8px 10px;border-radius:6px;margin-bottom:12px;}
+  .msg.ok{background:var(--green-bg);color:var(--green-tx);}
+  .msg.err{background:var(--red-bg);color:var(--red-tx);}
+  .catalogs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .cat-block{border:1px solid var(--line);border-radius:8px;padding:12px;}
+  .cat-block h4{margin:0 0 8px;font-size:12.5px;color:var(--navy-900);}
+  .cat-block .row{display:flex;gap:6px;margin-bottom:6px;}
+  .cat-block input{flex:1;padding:6px 8px;border:1px solid var(--line);border-radius:5px;font-size:12px;}
+  .cat-block ul{list-style:none;margin:0;padding:0;font-size:12.3px;max-height:140px;overflow:auto;}
+  .cat-block li{padding:4px 0;border-bottom:1px solid #F0EEE7;display:flex;justify-content:space-between;}
+  .rubric-row{display:grid;grid-template-columns:1fr 70px 30px;gap:8px;align-items:center;margin-bottom:6px;}
+  .rubric-row input{padding:6px 8px;border:1px solid var(--line);border-radius:5px;font-size:12.5px;}
+  .x-btn{background:none;border:none;color:var(--red-tx);cursor:pointer;font-size:14px;}
+  .perm-table td, .perm-table th{text-align:center;}
+  .perm-table td:first-child, .perm-table th:first-child{text-align:left;}
 </style>
 </head>
 <body>
@@ -78,34 +94,198 @@
 <div class="shell">
   <div class="side">
     <div class="side-brand"><div class="sq">S</div><div class="name">SIGE</div></div>
+
     <div class="side-group">General</div>
     <a class="nav active" data-v="v-dash" onclick="go('v-dash',this)">Dashboard</a>
+
+    <div class="side-group" id="grpOrg" style="display:none;">Colegios</div>
+    <a class="nav" data-v="v-orgs" onclick="go('v-orgs',this)" id="navOrgs" style="display:none;">Colegios (Super Admin)</a>
+
     <div class="side-group">Usuarios</div>
     <a class="nav" data-v="v-users" onclick="go('v-users',this)">Usuarios y accesos</a>
+
+    <div class="side-group">Académico</div>
+    <a class="nav" data-v="v-students" onclick="go('v-students',this)">Estudiantes / matrícula</a>
+    <a class="nav" data-v="v-instr" onclick="go('v-instr',this)">Instrumentos de evaluación</a>
+    <a class="nav" data-v="v-rage" onclick="go('v-rage',this)">RAGE</a>
+
+    <div class="side-group">Administración</div>
+    <a class="nav" data-v="v-docs" onclick="go('v-docs',this)">Documentos y certificados</a>
+
     <div class="side-group">Sistema</div>
     <a class="nav" data-v="v-config" onclick="go('v-config',this)">Configuración</a>
   </div>
+
   <div class="main">
     <div class="topbar">
       <h1 id="pageTitle">Dashboard</h1>
       <div class="who"></div>
     </div>
+
     <div class="view active" id="v-dash">
-      <div class="card"><h3>Bienvenido</h3><p>Ya estás conectado al backend real. Desde aquí seguimos construyendo cada módulo.</p></div>
+      <div class="card"><h3>Bienvenido</h3><p id="dashMsg">Conectado al backend real de SIGE Venezuela.</p></div>
     </div>
+
+    <div class="view" id="v-orgs">
+      <div class="card">
+        <h3>Crear colegio</h3>
+        <div id="orgMsg"></div>
+        <div class="grid2">
+          <div class="field"><label>Nombre</label><input type="text" id="orgNombre" placeholder="U.E. Colegio..."></div>
+          <div class="field"><label>Tipo</label><select id="orgTipo"><option value="publico">Público</option><option value="privado">Privado</option><option value="mixto">Mixto</option></select></div>
+        </div>
+        <div class="field"><label>Dirección</label><input type="text" id="orgDireccion"></div>
+        <button class="btn-amber" onclick="crearOrganizacion()">Crear colegio</button>
+      </div>
+      <div class="card"><h3>Colegios registrados</h3><table id="tablaOrgs"><tr><th>Nombre</th><th>Tipo</th><th>Estado</th></tr></table></div>
+    </div>
+
     <div class="view" id="v-users">
-      <div class="toolbar"><input type="text" placeholder="Buscar..."><button class="btn-amber">+ Nuevo usuario</button></div>
-      <div class="card"><table id="tablaUsuarios"><tr><th>Nombre</th><th>Rol</th><th>Usuario</th><th>Estado</th></tr></table></div>
+      <div class="card">
+        <h3>Crear usuario</h3>
+        <div id="userMsg"></div>
+        <div class="grid2">
+          <div class="field"><label>Nombre completo</label><input type="text" id="uNombre"></div>
+          <div class="field"><label>Rol</label>
+            <select id="uRol">
+              <option value="administrador">Administrador (Director)</option>
+              <option value="coordinador">Coordinador académico</option>
+              <option value="secretaria">Secretaría</option>
+              <option value="docente">Docente</option>
+              <option value="representante">Representante</option>
+              <option value="estudiante">Estudiante</option>
+            </select>
+          </div>
+          <div class="field" id="uOrgWrap" style="display:none;"><label>Colegio (organizacion_id)</label><input type="text" id="uOrgId" placeholder="Ej: 1"></div>
+          <div class="field"><label>Usuario</label><input type="text" id="uUsuario"></div>
+          <div class="field"><label>Contraseña</label><input type="text" id="uPassword"></div>
+        </div>
+        <button class="btn-amber" onclick="crearUsuario()">Crear usuario</button>
+      </div>
+      <div class="card">
+        <div class="toolbar"><h3 style="margin:0;">Usuarios</h3></div>
+        <table id="tablaUsuarios"><tr><th>Nombre</th><th>Rol</th><th>Usuario</th><th>Estado</th><th></th></tr></table>
+      </div>
+      <div class="card" id="permCard" style="display:none;">
+        <h3>Permisos de: <span id="permUsuarioNombre"></span></h3>
+        <table class="perm-table" id="tablaPermisos">
+          <tr><th>Módulo</th><th>Ver</th><th>Crear</th><th>Editar</th><th>Aprobar</th></tr>
+        </table>
+        <button class="btn-amber" style="margin-top:10px;" onclick="guardarPermisos()">Guardar permisos</button>
+      </div>
     </div>
+
+    <div class="view" id="v-students">
+      <div class="card">
+        <h3>Matricular estudiante</h3>
+        <div id="studMsg"></div>
+        <div class="grid2">
+          <div class="field"><label>Nombre completo</label><input type="text" id="stNombre"></div>
+          <div class="field"><label>Cédula / partida</label><input type="text" id="stCedula"></div>
+          <div class="field"><label>Sección</label><select id="stSeccion"></select></div>
+        </div>
+        <button class="btn-amber" onclick="crearEstudiante()">Matricular</button>
+      </div>
+      <div class="card"><h3>Estudiantes</h3><table id="tablaEstudiantes"><tr><th>Nombre</th><th>Grado/Sección</th><th>Estado</th></tr></table></div>
+    </div>
+
+    <div class="view" id="v-instr">
+      <div class="card">
+        <h3>Nuevo instrumento de evaluación</h3>
+        <div id="instrMsg"></div>
+        <div class="grid2">
+          <div class="field"><label>Sección</label><select id="inSeccion"></select></div>
+          <div class="field"><label>Materia</label><select id="inMateria"></select></div>
+          <div class="field"><label>Área</label><select id="inArea"></select></div>
+          <div class="field"><label>Tipo de instrumento</label><select id="inTipo"></select></div>
+          <div class="field"><label>Momento</label><select id="inMomento"><option>I</option><option>II</option><option>III</option></select></div>
+          <div class="field"><label>Fecha</label><input type="date" id="inFecha"></div>
+        </div>
+        <h4 style="font-size:12.5px;color:var(--navy-900);margin:14px 0 8px;">Criterios de la rúbrica</h4>
+        <div id="criteriosLista"></div>
+        <button class="btn-ghost" onclick="agregarCriterio()">+ Agregar criterio</button>
+        <div style="margin-top:14px;"><button class="btn-amber" onclick="crearInstrumento()">Guardar instrumento</button></div>
+      </div>
+      <div class="card">
+        <h3>Tipos de instrumento (catálogo editable)</h3>
+        <div class="row" style="display:flex;gap:8px;">
+          <input type="text" id="nuevoTipoInstrumento" placeholder="Ej: Debate" style="flex:1;padding:8px;border:1px solid var(--line);border-radius:6px;">
+          <button class="btn-ghost" onclick="crearTipoInstrumento()">Agregar</button>
+        </div>
+        <ul id="listaTiposInstrumento" style="margin-top:10px;list-style:none;padding:0;font-size:12.8px;"></ul>
+      </div>
+    </div>
+
+    <div class="view" id="v-rage">
+      <div class="card">
+        <h3>Consultar RAGE</h3>
+        <div class="grid2">
+          <div class="field"><label>Sección</label><select id="rgSeccion"></select></div>
+          <div class="field"><label>Momento</label><select id="rgMomento"><option>I</option><option>II</option><option>III</option></select></div>
+        </div>
+        <button class="btn-ghost" onclick="verRage()">Consultar</button>
+      </div>
+      <div class="card"><table id="tablaRage"><tr><th>Estudiante</th><th>Materia</th><th>Total instrumento</th></tr></table></div>
+    </div>
+
+    <div class="view" id="v-docs">
+      <div class="card">
+        <h3>Emitir documento</h3>
+        <div id="docMsg"></div>
+        <div class="grid2">
+          <div class="field"><label>Estudiante</label><select id="docEstudiante"></select></div>
+          <div class="field"><label>Tipo</label>
+            <select id="docTipo">
+              <option value="constancia_estudio">Constancia de estudio</option>
+              <option value="constancia_conducta">Constancia de conducta</option>
+              <option value="certificado_notas">Certificado de notas</option>
+              <option value="acta_retiro">Acta de retiro</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-amber" onclick="emitirDocumento()">Emitir</button>
+      </div>
+      <div class="card"><h3>Documentos emitidos</h3><table id="tablaDocs"><tr><th>N°</th><th>Estudiante</th><th>Tipo</th><th>Código</th></tr></table></div>
+      <div class="card">
+        <h3>Validar documento</h3>
+        <div class="toolbar"><input type="text" id="codigoValidar" placeholder="Código, ej. SIGE-7K4D9A" style="width:260px;"><button class="btn-ghost" onclick="validarDocumento()">Validar</button></div>
+        <div id="resultadoValidacion"></div>
+      </div>
+    </div>
+
     <div class="view" id="v-config">
-      <div class="card"><h3>Configuración</h3><p>Catálogos del colegio — próximo módulo a construir.</p></div>
+      <div class="card">
+        <h3>Catálogos del colegio</h3>
+        <div class="catalogs">
+          <div class="cat-block">
+            <h4>Grados</h4>
+            <div class="row"><input type="text" id="nuevoGrado" placeholder="Ej: 3er grado"><button class="btn-ghost" onclick="crearCatalogo('grados','nuevoGrado')">+</button></div>
+            <ul id="listaGrados"></ul>
+          </div>
+          <div class="cat-block">
+            <h4>Secciones</h4>
+            <div class="row"><select id="nuevaSeccionGrado" style="flex:1;"></select><input type="text" id="nuevaSeccionNombre" placeholder="A" style="width:50px;"><button class="btn-ghost" onclick="crearSeccion()">+</button></div>
+            <ul id="listaSecciones"></ul>
+          </div>
+          <div class="cat-block">
+            <h4>Materias</h4>
+            <div class="row"><input type="text" id="nuevaMateria" placeholder="Ej: Matemática"><button class="btn-ghost" onclick="crearMateria()">+</button></div>
+            <ul id="listaMaterias"></ul>
+          </div>
+          <div class="cat-block">
+            <h4>Tipos de inasistencia</h4>
+            <div class="row"><input type="text" id="nuevoTipoInasistencia" placeholder="Ej: Permiso"><button class="btn-ghost" onclick="crearCatalogo('tipos-inasistencia','nuevoTipoInasistencia')">+</button></div>
+            <ul id="listaTiposInasistencia"></ul>
+          </div>
+        </div>
+      </div>
     </div>
+
   </div>
 </div>
 </div>
 
 <script>
-// Detecta automáticamente si debe hablar con localhost (desarrollo) o con el mismo dominio donde se sirve la página (producción)
 const API_URL = (location.hostname === 'localhost' || location.protocol === 'file:')
   ? 'http://localhost:4000/api'
   : location.origin + '/api';
@@ -113,6 +293,7 @@ document.getElementById('apiUrlShown').textContent = API_URL;
 
 let TOKEN = null;
 let USUARIO_ACTUAL = null;
+let CRITERIOS = [];
 
 async function api(path, options = {}) {
   const res = await fetch(API_URL + path, {
@@ -122,6 +303,12 @@ async function api(path, options = {}) {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || 'Error de conexión con el backend');
   return data;
+}
+
+function mostrarMsg(elId, texto, tipo) {
+  const el = document.getElementById(elId);
+  el.innerHTML = '<div class="msg ' + tipo + '">' + texto + '</div>';
+  setTimeout(() => { el.innerHTML = ''; }, 4000);
 }
 
 async function entrar(){
@@ -134,8 +321,13 @@ async function entrar(){
     TOKEN = data.token; USUARIO_ACTUAL = data.usuario;
     document.getElementById('login').style.display='none';
     document.getElementById('app').style.display='block';
-    document.querySelector('.who').innerHTML = `<b>${USUARIO_ACTUAL.nombre_completo}</b> · ${USUARIO_ACTUAL.rol}<br>${USUARIO_ACTUAL.organizacion_nombre || 'Todos los colegios'}`;
-    cargarUsuarios();
+    document.querySelector('.who').innerHTML = '<b>' + USUARIO_ACTUAL.nombre_completo + '</b> · ' + USUARIO_ACTUAL.rol + '<br>' + (USUARIO_ACTUAL.organizacion_nombre || 'Todos los colegios');
+    if (USUARIO_ACTUAL.rol === 'super_admin') {
+      document.getElementById('grpOrg').style.display = '';
+      document.getElementById('navOrgs').style.display = '';
+      document.getElementById('uOrgWrap').style.display = '';
+    }
+    cargarTodo();
   }catch(e){
     errorEl.textContent = e.message.includes('fetch') ? 'No se pudo conectar al backend en ' + API_URL : e.message;
   }
@@ -147,17 +339,249 @@ function go(id, el){
   document.querySelectorAll('.side a').forEach(a=>a.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('pageTitle').textContent = el.textContent.trim();
-  if(id === 'v-users') cargarUsuarios();
+}
+
+async function cargarTodo(){
+  if (USUARIO_ACTUAL.rol === 'super_admin') cargarOrganizaciones();
+  await Promise.all([cargarUsuarios(), cargarEstudiantes(), cargarSeccionesSelects(), cargarMaterias(), cargarAreas(),
+    cargarTiposInstrumento(), cargarGrados(), cargarTiposInasistencia(), cargarDocumentos()]);
+  agregarCriterio(); agregarCriterio();
+}
+
+async function cargarOrganizaciones(){
+  try{
+    const orgs = await api('/organizaciones');
+    document.getElementById('tablaOrgs').innerHTML = '<tr><th>Nombre</th><th>Tipo</th><th>Estado</th></tr>' +
+      orgs.map(o => '<tr><td>' + o.nombre + ' <span style="color:var(--ink-mute)">(id: ' + o.id + ')</span></td><td>' + o.tipo + '</td><td><span class="tag ' + (o.activo?'green':'gray') + '">' + (o.activo?'Activo':'Inactivo') + '</span></td></tr>').join('');
+  }catch(e){}
+}
+async function crearOrganizacion(){
+  try{
+    await api('/organizaciones', { method:'POST', body: JSON.stringify({
+      nombre: document.getElementById('orgNombre').value,
+      tipo: document.getElementById('orgTipo').value,
+      direccion: document.getElementById('orgDireccion').value,
+    })});
+    mostrarMsg('orgMsg', 'Colegio creado', 'ok');
+    document.getElementById('orgNombre').value=''; document.getElementById('orgDireccion').value='';
+    cargarOrganizaciones();
+  }catch(e){ mostrarMsg('orgMsg', e.message, 'err'); }
 }
 
 async function cargarUsuarios(){
-  if(!TOKEN) return;
   try{
     const usuarios = await api('/usuarios');
-    const tabla = document.getElementById('tablaUsuarios');
-    const filas = usuarios.map(u => `<tr><td>${u.nombre_completo}</td><td>${u.rol}</td><td>${u.usuario}</td><td><span class="tag ${u.activo?'green':'gray'}">${u.activo?'Activo':'Inactivo'}</span></td></tr>`).join('');
-    tabla.innerHTML = `<tr><th>Nombre</th><th>Rol</th><th>Usuario</th><th>Estado</th></tr>${filas || '<tr><td colspan="4" style="color:var(--ink-mute)">Sin usuarios todavía.</td></tr>'}`;
-  }catch(e){ console.error(e.message); }
+    document.getElementById('tablaUsuarios').innerHTML = '<tr><th>Nombre</th><th>Rol</th><th>Usuario</th><th>Estado</th><th></th></tr>' +
+      usuarios.map(u => '<tr><td>' + u.nombre_completo + '</td><td>' + u.rol + '</td><td>' + u.usuario + '</td><td><span class="tag ' + (u.activo?'green':'gray') + '">' + (u.activo?'Activo':'Inactivo') + '</span></td><td><button class="btn-ghost" onclick="verPermisos(' + u.id + ',\'' + u.nombre_completo.replace(/'/g,"") + '\')">Permisos</button></td></tr>').join('');
+  }catch(e){}
+}
+async function crearUsuario(){
+  try{
+    const body = {
+      nombre_completo: document.getElementById('uNombre').value,
+      rol: document.getElementById('uRol').value,
+      usuario: document.getElementById('uUsuario').value,
+      password: document.getElementById('uPassword').value,
+    };
+    if (USUARIO_ACTUAL.rol === 'super_admin') body.organizacion_id = document.getElementById('uOrgId').value;
+    await api('/usuarios', { method:'POST', body: JSON.stringify(body) });
+    mostrarMsg('userMsg', 'Usuario creado', 'ok');
+    ['uNombre','uUsuario','uPassword'].forEach(id => document.getElementById(id).value='');
+    cargarUsuarios();
+  }catch(e){ mostrarMsg('userMsg', e.message, 'err'); }
+}
+let USUARIO_PERMISOS_ID = null;
+const MODULOS_LABEL = { estudiantes:'Estudiantes', docentes:'Docentes', instrumentos:'Instrumentos', rage:'RAGE', boletines:'Boletines', asistencia:'Asistencia', pagos:'Pagos', documentos:'Documentos', calendario:'Calendario', comunicaciones:'Comunicaciones', configuracion:'Configuración' };
+async function verPermisos(id, nombre){
+  USUARIO_PERMISOS_ID = id;
+  document.getElementById('permUsuarioNombre').textContent = nombre;
+  document.getElementById('permCard').style.display = 'block';
+  const permisos = await api('/usuarios/' + id + '/permisos');
+  document.getElementById('tablaPermisos').innerHTML = '<tr><th>Módulo</th><th>Ver</th><th>Crear</th><th>Editar</th><th>Aprobar</th></tr>' +
+    permisos.map(p => '<tr data-modulo="' + p.modulo + '">' +
+      '<td>' + (MODULOS_LABEL[p.modulo] || p.modulo) + '</td>' +
+      '<td><input type="checkbox" class="pv" ' + (p.puede_ver?'checked':'') + '></td>' +
+      '<td><input type="checkbox" class="pc" ' + (p.puede_crear?'checked':'') + '></td>' +
+      '<td><input type="checkbox" class="pe" ' + (p.puede_editar?'checked':'') + '></td>' +
+      '<td><input type="checkbox" class="pa" ' + (p.puede_aprobar?'checked':'') + '></td>' +
+    '</tr>').join('');
+}
+async function guardarPermisos(){
+  const filas = document.querySelectorAll('#tablaPermisos tr[data-modulo]');
+  const permisos = Array.from(filas).map(f => ({
+    modulo: f.dataset.modulo,
+    puede_ver: f.querySelector('.pv').checked,
+    puede_crear: f.querySelector('.pc').checked,
+    puede_editar: f.querySelector('.pe').checked,
+    puede_aprobar: f.querySelector('.pa').checked,
+  }));
+  await api('/usuarios/' + USUARIO_PERMISOS_ID + '/permisos', { method:'PUT', body: JSON.stringify({ permisos }) });
+  alert('Permisos guardados');
+}
+
+async function cargarSeccionesSelects(){
+  try{
+    const secciones = await api('/catalogos/secciones');
+    const opts = secciones.map(s => '<option value="' + s.id + '">' + s.grado_nombre + ' ' + s.nombre + '</option>').join('');
+    ['stSeccion','inSeccion','rgSeccion'].forEach(id => { document.getElementById(id).innerHTML = opts || '<option value="">Sin secciones creadas</option>'; });
+  }catch(e){}
+}
+async function cargarEstudiantes(){
+  try{
+    const estudiantes = await api('/estudiantes');
+    document.getElementById('tablaEstudiantes').innerHTML = '<tr><th>Nombre</th><th>Grado/Sección</th><th>Estado</th></tr>' +
+      estudiantes.map(e => '<tr><td>' + e.nombre_completo + '</td><td>' + (e.grado||'') + ' ' + (e.seccion||'') + '</td><td><span class="tag green">' + e.estado + '</span></td></tr>').join('');
+    const opts = estudiantes.map(e => '<option value="' + e.id + '">' + e.nombre_completo + '</option>').join('');
+    document.getElementById('docEstudiante').innerHTML = opts;
+  }catch(e){}
+}
+async function crearEstudiante(){
+  try{
+    await api('/estudiantes', { method:'POST', body: JSON.stringify({
+      nombre_completo: document.getElementById('stNombre').value,
+      cedula_o_partida: document.getElementById('stCedula').value,
+      seccion_id: document.getElementById('stSeccion').value || null,
+    })});
+    mostrarMsg('studMsg', 'Estudiante matriculado', 'ok');
+    document.getElementById('stNombre').value=''; document.getElementById('stCedula').value='';
+    cargarEstudiantes();
+  }catch(e){ mostrarMsg('studMsg', e.message, 'err'); }
+}
+
+async function cargarMaterias(){
+  try{
+    const materias = await api('/catalogos/materias');
+    document.getElementById('inMateria').innerHTML = materias.map(m => '<option value="' + m.id + '">' + m.nombre + '</option>').join('');
+  }catch(e){}
+}
+async function cargarAreas(){
+  try{
+    const areas = await api('/catalogos/areas');
+    document.getElementById('inArea').innerHTML = areas.map(a => '<option value="' + a.id + '">' + a.nombre + '</option>').join('') || '<option value="">Sin áreas globales cargadas</option>';
+  }catch(e){}
+}
+async function cargarTiposInstrumento(){
+  try{
+    const tipos = await api('/instrumentos/tipos');
+    document.getElementById('inTipo').innerHTML = tipos.map(t => '<option value="' + t.id + '">' + t.nombre + '</option>').join('') || '<option value="">Crea un tipo abajo</option>';
+    document.getElementById('listaTiposInstrumento').innerHTML = tipos.map(t => '<li>' + t.nombre + '</li>').join('');
+  }catch(e){}
+}
+async function crearTipoInstrumento(){
+  const nombre = document.getElementById('nuevoTipoInstrumento').value;
+  if(!nombre) return;
+  await api('/instrumentos/tipos', { method:'POST', body: JSON.stringify({ nombre }) });
+  document.getElementById('nuevoTipoInstrumento').value='';
+  cargarTiposInstrumento();
+}
+function agregarCriterio(){
+  CRITERIOS.push({ nombre:'', puntaje: 5 });
+  renderCriterios();
+}
+function renderCriterios(){
+  document.getElementById('criteriosLista').innerHTML = CRITERIOS.map((c,i) =>
+    '<div class="rubric-row">' +
+      '<input type="text" placeholder="Nombre del criterio" value="' + c.nombre + '" oninput="CRITERIOS[' + i + '].nombre=this.value">' +
+      '<input type="number" value="' + c.puntaje + '" oninput="CRITERIOS[' + i + '].puntaje=this.value">' +
+      '<button class="x-btn" onclick="CRITERIOS.splice(' + i + ',1); renderCriterios();">✕</button>' +
+    '</div>').join('');
+}
+async function crearInstrumento(){
+  try{
+    const body = {
+      seccion_id: document.getElementById('inSeccion').value,
+      materia_id: document.getElementById('inMateria').value,
+      area_id: document.getElementById('inArea').value,
+      tipo_instrumento_id: document.getElementById('inTipo').value,
+      momento: document.getElementById('inMomento').value,
+      fecha: document.getElementById('inFecha').value,
+      criterios: CRITERIOS.filter(c => c.nombre),
+    };
+    await api('/instrumentos', { method:'POST', body: JSON.stringify(body) });
+    mostrarMsg('instrMsg', 'Instrumento creado', 'ok');
+    CRITERIOS = []; agregarCriterio(); agregarCriterio();
+  }catch(e){ mostrarMsg('instrMsg', e.message, 'err'); }
+}
+
+async function verRage(){
+  try{
+    const seccion_id = document.getElementById('rgSeccion').value;
+    const momento = document.getElementById('rgMomento').value;
+    const filas = await api('/rage?seccion_id=' + seccion_id + '&momento=' + momento);
+    document.getElementById('tablaRage').innerHTML = '<tr><th>Estudiante</th><th>Materia</th><th>Total instrumento</th></tr>' +
+      filas.map(f => '<tr><td>' + f.nombre_completo + '</td><td>' + f.materia + '</td><td>' + f.total_instrumento + '</td></tr>').join('');
+  }catch(e){ alert(e.message); }
+}
+
+async function cargarDocumentos(){
+  try{
+    const docs = await api('/documentos');
+    document.getElementById('tablaDocs').innerHTML = '<tr><th>N°</th><th>Estudiante</th><th>Tipo</th><th>Código</th></tr>' +
+      docs.map(d => '<tr><td>' + d.numero_correlativo + '</td><td>' + d.estudiante + '</td><td>' + d.tipo + '</td><td>' + d.codigo_validacion + '</td></tr>').join('');
+  }catch(e){}
+}
+async function emitirDocumento(){
+  try{
+    await api('/documentos', { method:'POST', body: JSON.stringify({
+      estudiante_id: document.getElementById('docEstudiante').value,
+      tipo: document.getElementById('docTipo').value,
+    })});
+    mostrarMsg('docMsg', 'Documento emitido', 'ok');
+    cargarDocumentos();
+  }catch(e){ mostrarMsg('docMsg', e.message, 'err'); }
+}
+async function validarDocumento(){
+  const codigo = document.getElementById('codigoValidar').value;
+  try{
+    const data = await api('/documentos/validar', { method:'POST', body: JSON.stringify({ codigo }) });
+    document.getElementById('resultadoValidacion').innerHTML = data.resultado === 'valido'
+      ? '<div class="msg ok">✔ Válido — ' + data.documento.estudiante + ', ' + data.documento.tipo + '</div>'
+      : '<div class="msg err">✘ ' + data.mensaje + '</div>';
+  }catch(e){ document.getElementById('resultadoValidacion').innerHTML = '<div class="msg err">' + e.message + '</div>'; }
+}
+
+async function cargarGrados(){
+  try{
+    const grados = await api('/catalogos/grados');
+    document.getElementById('listaGrados').innerHTML = grados.map(g => '<li>' + g.nombre + '</li>').join('');
+    document.getElementById('nuevaSeccionGrado').innerHTML = grados.map(g => '<option value="' + g.id + '">' + g.nombre + '</option>').join('');
+  }catch(e){}
+}
+async function cargarTiposInasistencia(){
+  try{
+    const tipos = await api('/catalogos/tipos-inasistencia');
+    document.getElementById('listaTiposInasistencia').innerHTML = tipos.map(t => '<li>' + t.nombre + '</li>').join('');
+  }catch(e){}
+}
+async function crearCatalogo(tabla, inputId){
+  const nombre = document.getElementById(inputId).value;
+  if(!nombre) return;
+  await api('/catalogos/' + tabla, { method:'POST', body: JSON.stringify({ nombre }) });
+  document.getElementById(inputId).value = '';
+  cargarGrados(); cargarTiposInasistencia(); cargarSeccionesSelects();
+}
+async function crearSeccion(){
+  const grado_id = document.getElementById('nuevaSeccionGrado').value;
+  const nombre = document.getElementById('nuevaSeccionNombre').value;
+  if(!grado_id || !nombre) return;
+  await api('/catalogos/secciones', { method:'POST', body: JSON.stringify({ grado_id, nombre }) });
+  document.getElementById('nuevaSeccionNombre').value='';
+  cargarSeccionesLista(); cargarSeccionesSelects();
+}
+async function cargarSeccionesLista(){
+  const secciones = await api('/catalogos/secciones');
+  document.getElementById('listaSecciones').innerHTML = secciones.map(s => '<li>' + s.grado_nombre + ' ' + s.nombre + '</li>').join('');
+}
+async function crearMateria(){
+  const nombre = document.getElementById('nuevaMateria').value;
+  if(!nombre) return;
+  await api('/catalogos/materias', { method:'POST', body: JSON.stringify({ nombre }) });
+  document.getElementById('nuevaMateria').value='';
+  cargarMaterias(); cargarListaMaterias();
+}
+async function cargarListaMaterias(){
+  const materias = await api('/catalogos/materias');
+  document.getElementById('listaMaterias').innerHTML = materias.map(m => '<li>' + m.nombre + '</li>').join('');
 }
 </script>
 </body>
