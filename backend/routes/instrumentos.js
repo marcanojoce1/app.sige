@@ -5,10 +5,20 @@ const { requireAuth, requirePermiso } = require('../middleware/auth');
 const router = express.Router();
 
 router.post('/', requireAuth, requirePermiso('instrumentos', 'crear'), async (req, res) => {
+  const { momento } = req.body;
+
+  // Si existe un período con ese nombre y está cerrado, no se permite crear más instrumentos ahí
+  const periodoCerrado = await pool.query(
+    `SELECT 1 FROM periodos WHERE organizacion_id = $1 AND nombre = $2 AND estado = 'cerrado'`,
+    [req.usuario.organizacion_id, momento]
+  );
+  if (periodoCerrado.rows.length) {
+    return res.status(403).json({ error: `El período "${momento}" ya está cerrado. No se pueden crear más instrumentos ahí.` });
+  }
   const docenteRow = await pool.query('SELECT id FROM docentes WHERE usuario_id = $1', [req.usuario.id]);
   if (!docenteRow.rows.length) return res.status(400).json({ error: 'El usuario no está registrado como docente' });
 
-  const { seccion_id, materia_id, area_id, contenido_id, indicador_id, tipo_instrumento_id, momento, fecha, criterios } = req.body;
+  const { seccion_id, materia_id, area_id, contenido_id, indicador_id, tipo_instrumento_id, fecha, criterios } = req.body;
 
   const instrumento = await pool.query(
     `INSERT INTO instrumentos_evaluacion

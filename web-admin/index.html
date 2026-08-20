@@ -97,6 +97,7 @@
 
     <div class="side-group">General</div>
     <a class="nav active" data-v="v-dash" onclick="go('v-dash',this)">Dashboard</a>
+    <a class="nav" data-v="v-wizard" onclick="go('v-wizard',this)">Configuración inicial</a>
 
     <div class="side-group" id="grpOrg" style="display:none;">Colegios</div>
     <a class="nav" data-v="v-orgs" onclick="go('v-orgs',this)" id="navOrgs" style="display:none;">Colegios (Super Admin)</a>
@@ -106,6 +107,7 @@
 
     <div class="side-group">Académico</div>
     <a class="nav" data-v="v-students" onclick="go('v-students',this)">Estudiantes / matrícula</a>
+    <a class="nav" data-v="v-asign" onclick="go('v-asign',this)">Asignación docente</a>
     <a class="nav" data-v="v-instr" onclick="go('v-instr',this)">Instrumentos de evaluación</a>
     <a class="nav" data-v="v-rage" onclick="go('v-rage',this)">RAGE</a>
 
@@ -262,11 +264,40 @@
 
     <div class="view" id="v-config">
       <div class="card">
+        <h3>Año escolar</h3>
+        <div class="toolbar">
+          <input type="text" id="nuevoAnioEscolar" placeholder="Ej: 2026-2027" style="width:160px;">
+          <button class="btn-ghost" onclick="crearAnioEscolar()">+ Crear año</button>
+        </div>
+        <table id="tablaAnios"><tr><th>Año</th><th>Estado</th><th></th></tr></table>
+      </div>
+
+      <div class="card">
+        <h3>Niveles educativos activados en este colegio</h3>
+        <p style="font-size:12.3px;color:var(--ink-mute);margin:0 0 10px;">Catálogo nacional — actívalos según los niveles que ofrezca el colegio.</p>
+        <div id="listaNivelesGlobal"></div>
+      </div>
+
+      <div class="card">
+        <h3>Períodos / Momentos académicos</h3>
+        <div class="grid2">
+          <div class="field"><label>Nombre</label><input type="text" id="nuevoPeriodoNombre" placeholder="Ej: I Momento"></div>
+          <div class="field"><label>Año escolar</label><select id="nuevoPeriodoAnio"></select></div>
+          <div class="field"><label>Fecha inicio</label><input type="date" id="nuevoPeriodoInicio"></div>
+          <div class="field"><label>Fecha fin</label><input type="date" id="nuevoPeriodoFin"></div>
+        </div>
+        <button class="btn-amber" onclick="crearPeriodo()">Crear período</button>
+        <table id="tablaPeriodos" style="margin-top:14px;"><tr><th>Nombre</th><th>Fechas</th><th>Estado</th><th></th></tr></table>
+      </div>
+
+      <div class="card">
         <h3>Catálogos del colegio</h3>
         <div class="catalogs">
           <div class="cat-block">
             <h4>Grados</h4>
-            <div class="row"><input type="text" id="nuevoGrado" placeholder="Ej: 3er grado"><button class="btn-ghost" onclick="crearCatalogo('grados','nuevoGrado')">+</button></div>
+            <select id="nuevoGradoNivel" style="width:100%;margin-bottom:5px;padding:6px;border:1px solid var(--line);border-radius:5px;font-size:12px;"></select>
+            <select id="nuevoGradoAnio" style="width:100%;margin-bottom:5px;padding:6px;border:1px solid var(--line);border-radius:5px;font-size:12px;"></select>
+            <div class="row"><input type="text" id="nuevoGrado" placeholder="Ej: 3er grado"><button class="btn-ghost" onclick="crearGrado()">+</button></div>
             <ul id="listaGrados"></ul>
           </div>
           <div class="cat-block">
@@ -285,6 +316,28 @@
             <ul id="listaTiposInasistencia"></ul>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="view" id="v-asign">
+      <div class="card">
+        <h3>Asignar docente a materia y sección</h3>
+        <div id="asignMsg"></div>
+        <div class="grid2">
+          <div class="field"><label>Docente</label><select id="asDocente"></select></div>
+          <div class="field"><label>Materia</label><select id="asMateria"></select></div>
+          <div class="field"><label>Sección</label><select id="asSeccion"></select></div>
+        </div>
+        <button class="btn-amber" onclick="crearAsignacion()">Asignar</button>
+      </div>
+      <div class="card"><h3>Asignaciones actuales</h3><table id="tablaAsignaciones"><tr><th>Docente</th><th>Materia</th><th>Grado/Sección</th><th></th></tr></table></div>
+    </div>
+
+    <div class="view" id="v-wizard">
+      <div class="card">
+        <h3>Configuración inicial del colegio</h3>
+        <p style="font-size:12.5px;color:var(--ink-mute);">Sigue este orden para dejar el colegio listo — cada paso alimenta al siguiente.</p>
+        <div id="wizardPasos"></div>
       </div>
     </div>
 
@@ -364,8 +417,10 @@ function go(id, el){
 async function cargarTodo(){
   if (USUARIO_ACTUAL.rol === 'super_admin') cargarOrganizaciones();
   await Promise.all([cargarUsuarios(), cargarEstudiantes(), cargarSeccionesSelects(), cargarMaterias(), cargarAreas(),
-    cargarTiposInstrumento(), cargarGrados(), cargarTiposInasistencia(), cargarDocumentos()]);
+    cargarTiposInstrumento(), cargarGrados(), cargarTiposInasistencia(), cargarDocumentos(),
+    cargarAniosEscolares(), cargarNivelesGlobal(), cargarPeriodos(), cargarAsignaciones(), cargarDocentesSelect()]);
   agregarCriterio(); agregarCriterio();
+  renderWizard();
 }
 
 let COLEGIOS_CACHE = [];
@@ -575,7 +630,7 @@ async function validarDocumento(){
 async function cargarGrados(){
   try{
     const grados = await api('/catalogos/grados');
-    document.getElementById('listaGrados').innerHTML = grados.map(g => '<li>' + g.nombre + '</li>').join('');
+    document.getElementById('listaGrados').innerHTML = grados.map(g => '<li>' + g.nombre + ' <span style="color:var(--ink-mute)">(' + (g.nivel_nombre||'sin nivel') + (g.anio_nombre?', '+g.anio_nombre:'') + ')</span></li>').join('');
     document.getElementById('nuevaSeccionGrado').innerHTML = grados.map(g => '<option value="' + g.id + '">' + g.nombre + '</option>').join('');
   }catch(e){}
 }
@@ -614,6 +669,166 @@ async function crearMateria(){
 async function cargarListaMaterias(){
   const materias = await api('/catalogos/materias');
   document.getElementById('listaMaterias').innerHTML = materias.map(m => '<li>' + m.nombre + '</li>').join('');
+}
+
+/* ---------- AÑO ESCOLAR ---------- */
+let ANIOS_CACHE = [];
+async function cargarAniosEscolares(){
+  try{
+    const anios = await api('/catalogos/anios-escolares');
+    ANIOS_CACHE = anios;
+    document.getElementById('tablaAnios').innerHTML = '<tr><th>Año</th><th>Estado</th><th></th></tr>' +
+      anios.map(a => '<tr><td>' + a.nombre + '</td><td><span class="tag ' + (a.activo?'green':'gray') + '">' + (a.activo?'Activo':'Inactivo') + '</span></td><td>' + (a.activo?'':'<button class="btn-ghost" onclick="activarAnio(' + a.id + ')">Activar</button>') + '</td></tr>').join('');
+    const opts = anios.map(a => '<option value="' + a.id + '">' + a.nombre + '</option>').join('');
+    ['nuevoGradoAnio','nuevoPeriodoAnio'].forEach(id => { const el = document.getElementById(id); if(el) el.innerHTML = opts; });
+  }catch(e){}
+}
+async function crearAnioEscolar(){
+  const nombre = document.getElementById('nuevoAnioEscolar').value;
+  if(!nombre) return;
+  await api('/catalogos/anios-escolares', { method:'POST', body: JSON.stringify({ nombre }) });
+  document.getElementById('nuevoAnioEscolar').value='';
+  cargarAniosEscolares();
+}
+async function activarAnio(id){
+  await api('/catalogos/anios-escolares/' + id + '/activar', { method:'PUT' });
+  cargarAniosEscolares();
+}
+
+/* ---------- NIVELES EDUCATIVOS ---------- */
+async function cargarNivelesGlobal(){
+  try{
+    const todos = await api('/catalogos/niveles');
+    const activos = await api('/catalogos/mis-niveles');
+    const idsActivos = activos.map(n => n.id);
+    document.getElementById('listaNivelesGlobal').innerHTML = todos.map(n =>
+      '<label style="display:flex;align-items:center;gap:8px;padding:6px 0;font-size:12.8px;">' +
+      '<input type="checkbox" ' + (idsActivos.includes(n.id)?'checked disabled':'') + ' onchange="activarNivel(' + n.id + ')"> ' + n.nombre +
+      (idsActivos.includes(n.id) ? ' <span class="tag green">Activado</span>' : '') +
+      '</label>').join('');
+    const opts = activos.map(n => '<option value="' + n.id + '">' + n.nombre + '</option>').join('');
+    const el = document.getElementById('nuevoGradoNivel'); if(el) el.innerHTML = opts || '<option value="">Activa un nivel arriba primero</option>';
+  }catch(e){}
+}
+async function activarNivel(id){
+  await api('/catalogos/mis-niveles', { method:'POST', body: JSON.stringify({ nivel_id: id }) });
+  cargarNivelesGlobal();
+}
+
+/* ---------- PERÍODOS ---------- */
+async function cargarPeriodos(){
+  try{
+    const periodos = await api('/catalogos/periodos');
+    document.getElementById('tablaPeriodos').innerHTML = '<tr><th>Nombre</th><th>Fechas</th><th>Estado</th><th></th></tr>' +
+      periodos.map(p => '<tr><td>' + p.nombre + '</td><td>' + (p.fecha_inicio||'') + ' — ' + (p.fecha_fin||'') + '</td><td><span class="tag ' + (p.estado==='abierto'?'green':'gray') + '">' + p.estado + '</span></td><td>' +
+        (p.estado==='abierto'
+          ? '<button class="btn-ghost" onclick="cerrarPeriodo(' + p.id + ')">Cerrar</button>'
+          : '<button class="btn-ghost" onclick="reabrirPeriodo(' + p.id + ')">Reabrir</button>') +
+      '</td></tr>').join('');
+  }catch(e){}
+}
+async function crearPeriodo(){
+  const nombre = document.getElementById('nuevoPeriodoNombre').value;
+  const anio_escolar_id = document.getElementById('nuevoPeriodoAnio').value;
+  const fecha_inicio = document.getElementById('nuevoPeriodoInicio').value;
+  const fecha_fin = document.getElementById('nuevoPeriodoFin').value;
+  if(!nombre) return;
+  await api('/catalogos/periodos', { method:'POST', body: JSON.stringify({ nombre, anio_escolar_id, fecha_inicio, fecha_fin }) });
+  document.getElementById('nuevoPeriodoNombre').value='';
+  cargarPeriodos();
+}
+async function cerrarPeriodo(id){
+  if(!confirm('¿Cerrar este período? No se podrán crear más instrumentos de evaluación con ese nombre de momento.')) return;
+  await api('/catalogos/periodos/' + id + '/cerrar', { method:'PUT' });
+  cargarPeriodos();
+}
+async function reabrirPeriodo(id){
+  await api('/catalogos/periodos/' + id + '/reabrir', { method:'PUT' });
+  cargarPeriodos();
+}
+
+/* ---------- GRADOS (con nivel y año escolar) ---------- */
+async function crearGrado(){
+  const nombre = document.getElementById('nuevoGrado').value;
+  const nivel_id = document.getElementById('nuevoGradoNivel').value;
+  const anio_escolar_id = document.getElementById('nuevoGradoAnio').value;
+  if(!nombre) return;
+  await api('/catalogos/grados', { method:'POST', body: JSON.stringify({ nombre, nivel_id, anio_escolar_id }) });
+  document.getElementById('nuevoGrado').value='';
+  cargarGrados(); cargarSeccionesSelects();
+}
+
+/* ---------- ASIGNACIÓN DOCENTE ---------- */
+async function cargarDocentesSelect(){
+  try{
+    const usuarios = await api('/usuarios');
+    const docentes = usuarios.filter(u => u.rol === 'docente');
+    const el = document.getElementById('asDocente');
+    if(el) el.innerHTML = docentes.map(d => '<option value="' + d.id + '">' + d.nombre_completo + '</option>').join('') || '<option value="">Crea un docente primero en Usuarios</option>';
+  }catch(e){}
+}
+async function cargarAsignaciones(){
+  try{
+    const asignaciones = await api('/asignaciones');
+    document.getElementById('tablaAsignaciones').innerHTML = '<tr><th>Docente</th><th>Materia</th><th>Grado/Sección</th><th></th></tr>' +
+      asignaciones.map(a => '<tr><td>' + a.docente + '</td><td>' + a.materia + '</td><td>' + a.grado + ' ' + a.seccion + '</td><td><button class="x-btn" onclick="eliminarAsignacion(' + a.id + ')">✕</button></td></tr>').join('');
+    // los selects de materia/sección para asignación reutilizan los mismos catálogos
+    const materias = await api('/catalogos/materias');
+    document.getElementById('asMateria').innerHTML = materias.map(m => '<option value="' + m.id + '">' + m.nombre + '</option>').join('');
+    const secciones = await api('/catalogos/secciones');
+    document.getElementById('asSeccion').innerHTML = secciones.map(s => '<option value="' + s.id + '">' + s.grado_nombre + ' ' + s.nombre + '</option>').join('');
+  }catch(e){}
+}
+async function crearAsignacion(){
+  try{
+    await api('/asignaciones', { method:'POST', body: JSON.stringify({
+      docente_usuario_id: document.getElementById('asDocente').value,
+      materia_id: document.getElementById('asMateria').value,
+      seccion_id: document.getElementById('asSeccion').value,
+    })});
+    mostrarMsg('asignMsg', 'Asignación creada', 'ok');
+    cargarAsignaciones();
+  }catch(e){ mostrarMsg('asignMsg', e.message, 'err'); }
+}
+async function eliminarAsignacion(id){
+  await api('/asignaciones/' + id, { method:'DELETE' });
+  cargarAsignaciones();
+}
+
+/* ---------- WIZARD DE CONFIGURACIÓN INICIAL ---------- */
+async function renderWizard(){
+  if (USUARIO_ACTUAL.rol === 'super_admin') {
+    document.getElementById('wizardPasos').innerHTML = '<p style="color:var(--ink-mute);font-size:12.5px;">Este checklist es para el Administrador de cada colegio, no para el Super Administrador.</p>';
+    return;
+  }
+  try{
+    const [anios, niveles, grados, secciones, materias, usuarios, asignaciones, estudiantes, periodos] = await Promise.all([
+      api('/catalogos/anios-escolares'), api('/catalogos/mis-niveles'), api('/catalogos/grados'),
+      api('/catalogos/secciones'), api('/catalogos/materias'), api('/usuarios'),
+      api('/asignaciones'), api('/estudiantes'), api('/catalogos/periodos'),
+    ]);
+    const docentes = usuarios.filter(u => u.rol === 'docente');
+    const representantes = usuarios.filter(u => u.rol === 'representante');
+    const pasos = [
+      { titulo: '1. Año escolar activo', ok: anios.some(a => a.activo), vista: 'v-config' },
+      { titulo: '2. Niveles educativos activados', ok: niveles.length > 0, vista: 'v-config' },
+      { titulo: '3. Grados creados', ok: grados.length > 0, vista: 'v-config' },
+      { titulo: '4. Secciones creadas', ok: secciones.length > 0, vista: 'v-config' },
+      { titulo: '5. Materias creadas', ok: materias.length > 0, vista: 'v-config' },
+      { titulo: '6. Docentes registrados', ok: docentes.length > 0, vista: 'v-users' },
+      { titulo: '7. Asignación docente (quién da qué)', ok: asignaciones.length > 0, vista: 'v-asign' },
+      { titulo: '8. Estudiantes matriculados', ok: estudiantes.length > 0, vista: 'v-students' },
+      { titulo: '9. Representantes registrados', ok: representantes.length > 0, vista: 'v-users' },
+      { titulo: '10. Períodos/Momentos definidos', ok: periodos.length > 0, vista: 'v-config' },
+    ];
+    document.getElementById('wizardPasos').innerHTML = pasos.map(p =>
+      '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #EFEDE6;">' +
+      '<span style="font-size:13px;">' + (p.ok?'✅ ':'⬜ ') + p.titulo + '</span>' +
+      '<button class="btn-ghost" onclick="go(\'' + p.vista + '\', document.querySelector(\'.side a[data-v=' + "'" + p.vista + "'" + ']\'))">Ir</button>' +
+      '</div>').join('');
+    const completos = pasos.filter(p => p.ok).length;
+    document.getElementById('wizardPasos').innerHTML += '<p style="margin-top:12px;font-size:12.5px;color:var(--ink-mute);">' + completos + ' de ' + pasos.length + ' pasos completados.' + (completos===pasos.length ? ' 🎉 Configuración 100% completada.' : '') + '</p>';
+  }catch(e){}
 }
 </script>
 </body>

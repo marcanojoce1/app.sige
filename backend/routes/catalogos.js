@@ -31,7 +31,6 @@ function catalogoSimple(tabla, campos = ['nombre']) {
   return r;
 }
 
-router.use('/grados', catalogoSimple('grados'));
 router.use('/tipos-inasistencia', catalogoSimple('tipos_inasistencia'));
 router.use('/conceptos-pago', catalogoSimple('conceptos_pago', ['nombre', 'monto']));
 router.use('/anios-escolares', catalogoSimple('anios_escolares'));
@@ -126,6 +125,103 @@ router.post('/contenidos', requireAuth, async (req, res) => {
     [area_id, grado, momento, descripcion]
   );
   res.status(201).json(result.rows[0]);
+});
+
+// ---------- NIVELES EDUCATIVOS ----------
+// Catálogo global (Inicial, Primaria, Media) — cualquier colegio lo consulta
+router.get('/niveles', requireAuth, async (req, res) => {
+  const result = await pool.query('SELECT * FROM niveles_educativos ORDER BY id');
+  res.json(result.rows);
+});
+
+// Niveles que el colegio activó (solo estos aparecen al crear grados)
+router.get('/mis-niveles', requireAuth, requirePermiso('configuracion', 'ver'), async (req, res) => {
+  const result = await pool.query(
+    `SELECT n.* FROM colegio_niveles cn JOIN niveles_educativos n ON n.id = cn.nivel_id
+     WHERE cn.organizacion_id = $1 ORDER BY n.id`,
+    [req.usuario.organizacion_id]
+  );
+  res.json(result.rows);
+});
+
+router.post('/mis-niveles', requireAuth, requirePermiso('configuracion', 'crear'), async (req, res) => {
+  const { nivel_id } = req.body;
+  await pool.query(
+    `INSERT INTO colegio_niveles (organizacion_id, nivel_id) VALUES ($1,$2) ON CONFLICT DO NOTHING`,
+    [req.usuario.organizacion_id, nivel_id]
+  );
+  res.status(201).json({ ok: true });
+});
+
+// ---------- AÑO ESCOLAR ACTIVO ----------
+// Solo un año escolar puede estar activo por colegio a la vez
+router.put('/anios-escolares/:id/activar', requireAuth, requirePermiso('configuracion', 'editar'), async (req, res) => {
+  await pool.query('UPDATE anios_escolares SET activo = false WHERE organizacion_id = $1', [req.usuario.organizacion_id]);
+  const result = await pool.query(
+    'UPDATE anios_escolares SET activo = true WHERE id = $1 AND organizacion_id = $2 RETURNING *',
+    [req.params.id, req.usuario.organizacion_id]
+  );
+  res.json(result.rows[0]);
+});
+
+// Grados: ahora aceptan nivel_id y anio_escolar_id
+router.get('/grados', requireAuth, requirePermiso('configuracion', 'ver'), async (req, res) => {
+  const result = await pool.query(
+    `SELECT g.*, n.nombre AS nivel_nombre, a.nombre AS anio_nombre
+     FROM grados g
+     LEFT JOIN niveles_educativos n ON n.id = g.nivel_id
+     LEFT JOIN anios_escolares a ON a.id = g.anio_escolar_id
+     WHERE g.organizacion_id = $1 ORDER BY g.id`,
+    [req.usuario.organizacion_id]
+  );
+  res.json(result.rows);
+});
+
+router.post('/grados', requireAuth, requirePermiso('configuracion', 'crear'), async (req, res) => {
+  const { nombre, nivel_id, anio_escolar_id } = req.body;
+  const result = await pool.query(
+    `INSERT INTO grados (organizacion_id, nombre, nivel_id, anio_escolar_id) VALUES ($1,$2,$3,$4) RETURNING *`,
+    [req.usuario.organizacion_id, nombre, nivel_id || null, anio_escolar_id || null]
+  );
+  res.status(201).json(result.rows[0]);
+});
+
+// ---------- PERÍODOS / MOMENTOS (con fechas y cierre) ----------
+router.get('/periodos', requireAuth, requirePermiso('configuracion', 'ver'), async (req, res) => {
+  const result = await pool.query(
+    'SELECT * FROM periodos WHERE organizacion_id = $1 ORDER BY id',
+    [req.usuario.organizacion_id]
+  );
+  res.json(result.rows);
+});
+
+router.post('/periodos', requireAuth, requirePermiso('configuracion', 'crear'), async (req, res) => {
+  const { nombre, fecha_inicio, fecha_fin, anio_escolar_id } = req.body;
+  const result = await pool.query(
+    `INSERT INTO periodos (organizacion_id, anio_escolar_id, nombre, fecha_inicio, fecha_fin)
+     VALUES ($1,$2,$3,$4,$5) RETURNING *`,
+    [req.usuario.organizacion_id, anio_escolar_id || null, nombre, fecha_inicio || null, fecha_fin || null]
+  );
+  res.status(201).json(result.rows[0]);
+});
+
+// Cerrar un período: a partir de aquí no se pueden crear más instrumentos con ese momento
+router.put('/periodos/:id/cerrar', requireAuth, requirePermiso('configuracion', 'aprobar'), async (req, res) => {
+  const result = await pool.query(
+    `UPDATE periodos SET estado = 'cerrado', fecha_cierre = NOW()
+     WHERE id = $1 AND organizacion_id = $2 RETURNING *`,
+    [req.params.id, req.usuario.organizacion_id]
+  );
+  res.json(result.rows[0]);
+});
+
+router.put('/periodos/:id/reabrir', requireAuth, requirePermiso('configuracion', 'aprobar'), async (req, res) => {
+  const result = await pool.query(
+    `UPDATE periodos SET estado = 'abierto', fecha_cierre = NULL
+     WHERE id = $1 AND organizacion_id = $2 RETURNING *`,
+    [req.params.id, req.usuario.organizacion_id]
+  );
+  res.json(result.rows[0]);
 });
 
 module.exports = router;
