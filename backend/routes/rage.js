@@ -4,8 +4,6 @@ const { requireAuth, requirePermiso } = require('../middleware/auth');
 
 const router = express.Router();
 
-// RAGE de una sección/momento: promedio por estudiante y por materia, calculado en vivo.
-// Esto es lo que reemplaza el Excel: nunca se "copia" nada, se calcula desde calificaciones.
 router.get('/', requireAuth, requirePermiso('rage', 'ver'), async (req, res) => {
   const { seccion_id, momento } = req.query;
 

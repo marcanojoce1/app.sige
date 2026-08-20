@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
 
-// Verifica el token y adjunta los datos del usuario a la petición
 function requireAuth(req, res, next) {
   const header = req.headers.authorization || '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : null;
@@ -9,17 +8,14 @@ function requireAuth(req, res, next) {
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    req.usuario = payload; // { id, rol, organizacion_id, nombre_completo }
+    req.usuario = payload;
     next();
   } catch (e) {
     return res.status(401).json({ error: 'Token inválido o expirado' });
   }
 }
 
-// El super_admin y el administrador (Director) siempre pasan.
-// Los demás roles necesitan el permiso puntual guardado en permisos_usuario.
 function requirePermiso(moduloClave, accion) {
-  // accion: 'ver' | 'crear' | 'editar' | 'aprobar'
   return async (req, res, next) => {
     const { id: usuarioId, rol } = req.usuario;
 

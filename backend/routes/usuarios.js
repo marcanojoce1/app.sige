@@ -5,7 +5,6 @@ const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Solo super_admin y administrador pueden gestionar usuarios y sus permisos
 function soloDireccion(req, res, next) {
   if (!['super_admin', 'administrador'].includes(req.usuario.rol)) {
     return res.status(403).json({ error: 'No autorizado' });
@@ -13,7 +12,6 @@ function soloDireccion(req, res, next) {
   next();
 }
 
-// Listar usuarios (el super_admin ve todos o filtra por organizacion_id en query; el administrador solo ve los de su colegio)
 router.get('/', requireAuth, async (req, res) => {
   const orgFiltro = req.usuario.rol === 'super_admin' ? req.query.organizacion_id : req.usuario.organizacion_id;
   const params = [];
@@ -31,7 +29,6 @@ router.get('/', requireAuth, async (req, res) => {
   res.json(result.rows);
 });
 
-// Crear usuario (docente, secretaria, coordinador, representante, estudiante...)
 router.post('/', requireAuth, soloDireccion, async (req, res) => {
   const { nombre_completo, cedula, usuario, password, rol, estudiante_id } = req.body;
   const organizacion_id = req.usuario.rol === 'super_admin' ? req.body.organizacion_id : req.usuario.organizacion_id;
@@ -46,7 +43,6 @@ router.post('/', requireAuth, soloDireccion, async (req, res) => {
     [organizacion_id, rolRow.rows[0].id, nombre_completo, cedula || null, usuario, hash, estudiante_id || null]
   );
 
-  // Si es representante, vincular a sus estudiantes (array de ids)
   if (rol === 'representante' && Array.isArray(req.body.estudiantes_a_cargo)) {
     for (const estId of req.body.estudiantes_a_cargo) {
       await pool.query(
@@ -59,7 +55,6 @@ router.post('/', requireAuth, soloDireccion, async (req, res) => {
   res.status(201).json(result.rows[0]);
 });
 
-// Activar/desactivar o resetear contraseña
 router.put('/:id', requireAuth, soloDireccion, async (req, res) => {
   const { activo, nueva_password } = req.body;
   if (nueva_password) {
@@ -72,9 +67,6 @@ router.put('/:id', requireAuth, soloDireccion, async (req, res) => {
   res.json({ ok: true });
 });
 
-// ---------- PERMISOS GRANULARES (sección 4.1) ----------
-
-// Ver los permisos actuales de un usuario, módulo por módulo
 router.get('/:id/permisos', requireAuth, soloDireccion, async (req, res) => {
   const result = await pool.query(
     `SELECT m.clave AS modulo,
@@ -90,8 +82,6 @@ router.get('/:id/permisos', requireAuth, soloDireccion, async (req, res) => {
   res.json(result.rows);
 });
 
-// Guardar los permisos de un usuario (reemplaza todo el set de una vez)
-// body: { permisos: [{ modulo: 'documentos', puede_ver: true, puede_crear: true, ... }, ...] }
 router.put('/:id/permisos', requireAuth, soloDireccion, async (req, res) => {
   const usuarioId = req.params.id;
   const { permisos } = req.body;

@@ -9,13 +9,11 @@ function soloSuperAdmin(req, res, next) {
   next();
 }
 
-// Listar colegios
 router.get('/', requireAuth, soloSuperAdmin, async (req, res) => {
   const result = await pool.query('SELECT * FROM organizaciones ORDER BY nombre');
   res.json(result.rows);
 });
 
-// Crear colegio
 router.post('/', requireAuth, soloSuperAdmin, async (req, res) => {
   const { nombre, tipo, direccion } = req.body;
   const result = await pool.query(
@@ -25,7 +23,6 @@ router.post('/', requireAuth, soloSuperAdmin, async (req, res) => {
   res.status(201).json(result.rows[0]);
 });
 
-// Editar colegio (nombre solo lo cambia el Super Administrador, ver ruta aparte para el Administrador)
 router.put('/:id', requireAuth, soloSuperAdmin, async (req, res) => {
   const { nombre, tipo, direccion, activo } = req.body;
   const result = await pool.query(
@@ -36,7 +33,6 @@ router.put('/:id', requireAuth, soloSuperAdmin, async (req, res) => {
   res.json(result.rows[0]);
 });
 
-// El Administrador edita SU propio colegio, menos el nombre (sección 5 de la especificación)
 router.put('/mi-colegio/datos', requireAuth, async (req, res) => {
   if (req.usuario.rol !== 'administrador') return res.status(403).json({ error: 'Solo el Administrador del colegio' });
   const { logo_url, direccion, condiciones_boletin, pie_pagina } = req.body;

@@ -6,11 +6,9 @@ const { requireAuth, requirePermiso } = require('../middleware/auth');
 const router = express.Router();
 
 function generarCodigo() {
-  // Ej: SIGE-7K4D9A
   return 'SIGE-' + crypto.randomBytes(4).toString('hex').toUpperCase().slice(0, 6);
 }
 
-// Emitir un documento (constancia, certificado, etc.) — requiere permiso "crear" en módulo documentos
 router.post('/', requireAuth, requirePermiso('documentos', 'crear'), async (req, res) => {
   const { estudiante_id, tipo } = req.body;
   const organizacion_id = req.usuario.organizacion_id;
@@ -21,7 +19,6 @@ router.post('/', requireAuth, requirePermiso('documentos', 'crear'), async (req,
   );
 
   let codigo;
-  // Reintenta si por azar el código ya existe (es único)
   do {
     codigo = generarCodigo();
     const existe = await pool.query('SELECT 1 FROM documentos WHERE codigo_validacion = $1', [codigo]);
@@ -35,10 +32,8 @@ router.post('/', requireAuth, requirePermiso('documentos', 'crear'), async (req,
   );
 
   res.status(201).json(result.rows[0]);
-  // Nota: aquí se conectaría la generación real del PDF (ver skill de pdf) con el código impreso al pie.
 });
 
-// Listar documentos del colegio
 router.get('/', requireAuth, requirePermiso('documentos', 'ver'), async (req, res) => {
   const result = await pool.query(
     `SELECT d.*, e.nombre_completo AS estudiante
@@ -49,7 +44,6 @@ router.get('/', requireAuth, requirePermiso('documentos', 'ver'), async (req, re
   res.json(result.rows);
 });
 
-// Un representante/estudiante descarga SUS propios documentos desde la app
 router.get('/mis-documentos', requireAuth, async (req, res) => {
   if (!['representante', 'estudiante'].includes(req.usuario.rol)) {
     return res.status(403).json({ error: 'Solo representantes o estudiantes' });
@@ -69,7 +63,6 @@ router.get('/mis-documentos', requireAuth, async (req, res) => {
   res.json(result.rows);
 });
 
-// Validar un código (pantalla física en el colegio) — requiere permiso "ver" en documentos
 router.post('/validar', requireAuth, requirePermiso('documentos', 'ver'), async (req, res) => {
   const { codigo } = req.body;
   const doc = await pool.query(

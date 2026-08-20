@@ -1,5 +1,3 @@
-// Ejecuta el schema.sql y crea el primer usuario Super Administrador.
-// Uso:  npm run initdb
 const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');

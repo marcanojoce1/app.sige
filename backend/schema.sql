@@ -35,22 +35,21 @@ CREATE TABLE usuarios (
   usuario         VARCHAR(60) NOT NULL UNIQUE,
   password_hash   TEXT NOT NULL,
   password_temporal BOOLEAN NOT NULL DEFAULT FALSE,
-  estudiante_id   INTEGER,             -- si rol = estudiante, referencia directa a su ficha
+  estudiante_id   INTEGER,
   activo          BOOLEAN NOT NULL DEFAULT TRUE,
   creado_en       TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
--- Vínculo representante <-> estudiante(s) a su cargo (uno a muchos)
 CREATE TABLE representante_estudiante (
   representante_usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
   estudiante_id             INTEGER NOT NULL,
   PRIMARY KEY (representante_usuario_id, estudiante_id)
 );
 
--- ---------- PERMISOS GRANULARES POR USUARIO (sección 4.1 de la especificación) ----------
+-- ---------- PERMISOS GRANULARES POR USUARIO ----------
 CREATE TABLE modulos (
   id     SERIAL PRIMARY KEY,
-  clave  VARCHAR(40) NOT NULL UNIQUE  -- estudiantes | docentes | instrumentos | rage | boletines | asistencia | pagos | documentos | calendario | comunicaciones | configuracion
+  clave  VARCHAR(40) NOT NULL UNIQUE
 );
 
 INSERT INTO modulos (clave) VALUES
@@ -67,17 +66,17 @@ CREATE TABLE permisos_usuario (
   PRIMARY KEY (usuario_id, modulo_id)
 );
 
--- ---------- CATÁLOGO GLOBAL (Ministerio) — solo Super Admin lo edita ----------
+-- ---------- CATÁLOGO GLOBAL (Ministerio) ----------
 CREATE TABLE areas (
   id SERIAL PRIMARY KEY,
-  nombre VARCHAR(80) NOT NULL UNIQUE  -- Lenguaje, Matemática, Ciencias Naturales...
+  nombre VARCHAR(80) NOT NULL UNIQUE
 );
 
 CREATE TABLE indicadores (
   id SERIAL PRIMARY KEY,
   area_id INTEGER NOT NULL REFERENCES areas(id),
-  grado VARCHAR(20) NOT NULL,     -- 1er grado, 2do grado...
-  momento VARCHAR(10) NOT NULL,   -- I, II, III
+  grado VARCHAR(20) NOT NULL,
+  momento VARCHAR(10) NOT NULL,
   codigo VARCHAR(20),
   descripcion TEXT NOT NULL
 );
@@ -94,7 +93,7 @@ CREATE TABLE contenidos (
 CREATE TABLE anios_escolares (
   id SERIAL PRIMARY KEY,
   organizacion_id INTEGER NOT NULL REFERENCES organizaciones(id),
-  nombre VARCHAR(20) NOT NULL,  -- "2026-2027"
+  nombre VARCHAR(20) NOT NULL,
   activo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
@@ -107,7 +106,7 @@ CREATE TABLE grados (
 CREATE TABLE secciones (
   id SERIAL PRIMARY KEY,
   grado_id INTEGER NOT NULL REFERENCES grados(id),
-  nombre VARCHAR(10) NOT NULL  -- "A", "B", "U"...
+  nombre VARCHAR(10) NOT NULL
 );
 
 CREATE TABLE materias (
@@ -117,7 +116,6 @@ CREATE TABLE materias (
   area_id INTEGER REFERENCES areas(id)
 );
 
--- Tipos de instrumento: catálogo EDITABLE por colegio (sección 6.2 de la especificación)
 CREATE TABLE tipos_instrumento (
   id SERIAL PRIMARY KEY,
   organizacion_id INTEGER NOT NULL REFERENCES organizaciones(id),
@@ -128,13 +126,13 @@ CREATE TABLE tipos_instrumento (
 CREATE TABLE tipos_inasistencia (
   id SERIAL PRIMARY KEY,
   organizacion_id INTEGER NOT NULL REFERENCES organizaciones(id),
-  nombre VARCHAR(40) NOT NULL  -- Justificada, Injustificada, Retardo, Permiso
+  nombre VARCHAR(40) NOT NULL
 );
 
 CREATE TABLE conceptos_pago (
   id SERIAL PRIMARY KEY,
   organizacion_id INTEGER NOT NULL REFERENCES organizaciones(id),
-  nombre VARCHAR(60) NOT NULL,   -- Mensualidad, Inscripción...
+  nombre VARCHAR(60) NOT NULL,
   monto NUMERIC(10,2) NOT NULL
 );
 
@@ -145,7 +143,7 @@ CREATE TABLE estudiantes (
   nombre_completo VARCHAR(150) NOT NULL,
   cedula_o_partida VARCHAR(30),
   seccion_id INTEGER REFERENCES secciones(id),
-  estado VARCHAR(20) NOT NULL DEFAULT 'activo', -- activo | retirado | egresado | trasladado
+  estado VARCHAR(20) NOT NULL DEFAULT 'activo',
   creado_en TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
@@ -169,13 +167,13 @@ CREATE TABLE horarios (
   seccion_id INTEGER NOT NULL REFERENCES secciones(id),
   materia_id INTEGER NOT NULL REFERENCES materias(id),
   docente_id INTEGER NOT NULL REFERENCES docentes(id),
-  dia VARCHAR(10) NOT NULL,   -- lunes..viernes
+  dia VARCHAR(10) NOT NULL,
   hora_inicio TIME NOT NULL,
   hora_fin TIME NOT NULL,
   aula VARCHAR(30)
 );
 
--- ---------- INSTRUMENTOS DE EVALUACIÓN Y NOTAS (reemplazo del Excel) ----------
+-- ---------- INSTRUMENTOS DE EVALUACIÓN Y NOTAS ----------
 CREATE TABLE instrumentos_evaluacion (
   id SERIAL PRIMARY KEY,
   organizacion_id INTEGER NOT NULL REFERENCES organizaciones(id),
@@ -205,15 +203,14 @@ CREATE TABLE calificaciones (
   estudiante_id INTEGER NOT NULL REFERENCES estudiantes(id),
   puntaje_obtenido NUMERIC(5,2) NOT NULL
 );
--- El total por estudiante/instrumento (RAGE) se calcula sumando calificaciones -> no se duplica en tabla aparte
 
--- ---------- ASISTENCIA (alumnos y docentes, con QR — sección 6.6.1) ----------
+-- ---------- ASISTENCIA ----------
 CREATE TABLE asistencia_estudiante (
   id SERIAL PRIMARY KEY,
   estudiante_id INTEGER NOT NULL REFERENCES estudiantes(id),
   fecha DATE NOT NULL,
-  tipo_inasistencia_id INTEGER REFERENCES tipos_inasistencia(id), -- NULL = asistió
-  metodo VARCHAR(20) NOT NULL DEFAULT 'manual', -- manual | qr
+  tipo_inasistencia_id INTEGER REFERENCES tipos_inasistencia(id),
+  metodo VARCHAR(20) NOT NULL DEFAULT 'manual',
   hora_registro TIME
 );
 
@@ -229,17 +226,17 @@ CREATE TABLE observaciones_conducta (
   id SERIAL PRIMARY KEY,
   estudiante_id INTEGER NOT NULL REFERENCES estudiantes(id),
   docente_id INTEGER REFERENCES docentes(id),
-  tipo VARCHAR(20) NOT NULL, -- excelente | buena | regular | deficiente | reconocimiento | incidencia
+  tipo VARCHAR(20) NOT NULL,
   descripcion TEXT,
   fecha DATE NOT NULL DEFAULT CURRENT_DATE
 );
 
--- ---------- DOCUMENTOS Y CERTIFICADOS (con código de validación — sección 6.14) ----------
+-- ---------- DOCUMENTOS Y CERTIFICADOS ----------
 CREATE TABLE documentos (
   id SERIAL PRIMARY KEY,
   organizacion_id INTEGER NOT NULL REFERENCES organizaciones(id),
   estudiante_id INTEGER NOT NULL REFERENCES estudiantes(id),
-  tipo VARCHAR(60) NOT NULL,  -- constancia_estudio | constancia_conducta | certificado_notas | acta_retiro
+  tipo VARCHAR(60) NOT NULL,
   numero_correlativo INTEGER NOT NULL,
   codigo_validacion VARCHAR(20) NOT NULL UNIQUE,
   emitido_por INTEGER REFERENCES usuarios(id),
@@ -251,12 +248,12 @@ CREATE TABLE validaciones_documento (
   id SERIAL PRIMARY KEY,
   documento_id INTEGER REFERENCES documentos(id),
   codigo_ingresado VARCHAR(20) NOT NULL,
-  resultado VARCHAR(10) NOT NULL, -- valido | invalido
+  resultado VARCHAR(10) NOT NULL,
   validado_por INTEGER REFERENCES usuarios(id),
   fecha TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
--- ---------- PAGOS (nivel 1: comprobante subido por el representante — sección 6.13.1) ----------
+-- ---------- PAGOS ----------
 CREATE TABLE pagos (
   id SERIAL PRIMARY KEY,
   estudiante_id INTEGER NOT NULL REFERENCES estudiantes(id),
@@ -264,7 +261,7 @@ CREATE TABLE pagos (
   monto NUMERIC(10,2) NOT NULL,
   referencia VARCHAR(60),
   comprobante_url TEXT,
-  estado VARCHAR(20) NOT NULL DEFAULT 'pendiente', -- pendiente | confirmado | rechazado
+  estado VARCHAR(20) NOT NULL DEFAULT 'pendiente',
   confirmado_por INTEGER REFERENCES usuarios(id),
   fecha_pago DATE,
   numero_recibo INTEGER,
@@ -277,7 +274,7 @@ CREATE TABLE eventos_calendario (
   organizacion_id INTEGER NOT NULL REFERENCES organizaciones(id),
   titulo VARCHAR(150) NOT NULL,
   fecha DATE NOT NULL,
-  alcance VARCHAR(20) NOT NULL DEFAULT 'colegio', -- colegio | grado | seccion
+  alcance VARCHAR(20) NOT NULL DEFAULT 'colegio',
   grado_id INTEGER REFERENCES grados(id),
   seccion_id INTEGER REFERENCES secciones(id)
 );

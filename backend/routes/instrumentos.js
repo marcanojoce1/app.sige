@@ -4,9 +4,6 @@ const { requireAuth, requirePermiso } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Crear un instrumento de evaluación con sus criterios (la rúbrica)
-// body: { seccion_id, materia_id, area_id, contenido_id, indicador_id, tipo_instrumento_id, momento, fecha,
-//         criterios: [{ nombre, puntaje }, ...] }
 router.post('/', requireAuth, requirePermiso('instrumentos', 'crear'), async (req, res) => {
   const docenteRow = await pool.query('SELECT id FROM docentes WHERE usuario_id = $1', [req.usuario.id]);
   if (!docenteRow.rows.length) return res.status(400).json({ error: 'El usuario no está registrado como docente' });
@@ -32,8 +29,6 @@ router.post('/', requireAuth, requirePermiso('instrumentos', 'crear'), async (re
   res.status(201).json({ ...instrumento.rows[0], criterios: criteriosCreados });
 });
 
-// Registrar las calificaciones de todos los estudiantes de la sección para ese instrumento
-// body: { calificaciones: [{ estudiante_id, criterio_id, puntaje_obtenido }, ...] }
 router.post('/:id/calificar', requireAuth, requirePermiso('instrumentos', 'crear'), async (req, res) => {
   const instrumentoId = req.params.id;
   for (const c of req.body.calificaciones) {
@@ -43,11 +38,9 @@ router.post('/:id/calificar', requireAuth, requirePermiso('instrumentos', 'crear
       [instrumentoId, c.criterio_id, c.estudiante_id, c.puntaje_obtenido]
     );
   }
-  // Al guardar, el RAGE queda automáticamente actualizado porque se calcula en vivo (ver /rage)
   res.json({ ok: true });
 });
 
-// Tipos de instrumento del colegio (catálogo editable — sección 6.2)
 router.get('/tipos', requireAuth, requirePermiso('instrumentos', 'ver'), async (req, res) => {
   const result = await pool.query(
     `SELECT * FROM tipos_instrumento WHERE organizacion_id = $1 AND activo = true ORDER BY nombre`,
