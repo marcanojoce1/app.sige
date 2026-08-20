@@ -119,7 +119,10 @@
   <div class="main">
     <div class="topbar">
       <h1 id="pageTitle">Dashboard</h1>
-      <div class="who"></div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="who"></div>
+        <button class="btn-ghost" onclick="salir()">Cerrar sesión</button>
+      </div>
     </div>
 
     <div class="view active" id="v-dash">
@@ -156,7 +159,11 @@
               <option value="estudiante">Estudiante</option>
             </select>
           </div>
-          <div class="field" id="uOrgWrap" style="display:none;"><label>Colegio (organizacion_id)</label><input type="text" id="uOrgId" placeholder="Ej: 1"></div>
+          <div class="field" id="uOrgWrap" style="display:none;">
+            <label>Colegio</label>
+            <input type="text" id="uOrgSearch" placeholder="Buscar colegio por nombre..." oninput="filtrarColegios()" style="margin-bottom:6px;">
+            <select id="uOrgId"></select>
+          </div>
           <div class="field"><label>Usuario</label><input type="text" id="uUsuario"></div>
           <div class="field"><label>Contraseña</label><input type="text" id="uPassword"></div>
         </div>
@@ -333,6 +340,19 @@ async function entrar(){
   }
 }
 
+function salir(){
+  TOKEN = null;
+  USUARIO_ACTUAL = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login').style.display = 'flex';
+  document.getElementById('loginUsuario').value = '';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('grpOrg').style.display = 'none';
+  document.getElementById('navOrgs').style.display = 'none';
+  document.getElementById('uOrgWrap').style.display = 'none';
+  go('v-dash', document.querySelector('.side a[data-v="v-dash"]'));
+}
+
 function go(id, el){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -348,12 +368,24 @@ async function cargarTodo(){
   agregarCriterio(); agregarCriterio();
 }
 
+let COLEGIOS_CACHE = [];
 async function cargarOrganizaciones(){
   try{
     const orgs = await api('/organizaciones');
+    COLEGIOS_CACHE = orgs;
     document.getElementById('tablaOrgs').innerHTML = '<tr><th>Nombre</th><th>Tipo</th><th>Estado</th></tr>' +
       orgs.map(o => '<tr><td>' + o.nombre + ' <span style="color:var(--ink-mute)">(id: ' + o.id + ')</span></td><td>' + o.tipo + '</td><td><span class="tag ' + (o.activo?'green':'gray') + '">' + (o.activo?'Activo':'Inactivo') + '</span></td></tr>').join('');
+    renderSelectColegios(orgs);
   }catch(e){}
+}
+function renderSelectColegios(lista){
+  const sel = document.getElementById('uOrgId');
+  sel.innerHTML = lista.map(o => '<option value="' + o.id + '">' + o.nombre + '</option>').join('') || '<option value="">Sin colegios creados</option>';
+}
+function filtrarColegios(){
+  const texto = document.getElementById('uOrgSearch').value.toLowerCase();
+  const filtrados = COLEGIOS_CACHE.filter(o => o.nombre.toLowerCase().includes(texto));
+  renderSelectColegios(filtrados);
 }
 async function crearOrganizacion(){
   try{
