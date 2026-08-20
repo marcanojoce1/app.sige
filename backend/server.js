@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+require('express-async-errors'); // hace que los errores dentro de rutas async lleguen al manejador de abajo
 const cors = require('cors');
 const path = require('path');
 
@@ -29,6 +30,13 @@ app.get('/api', (req, res) => res.json({ ok: true, sistema: 'SIGE Venezuela back
 
 // Sirve la plataforma web (web-admin/index.html) desde este mismo servicio
 app.use(express.static(path.join(__dirname, '..', 'web-admin')));
+
+// Manejador de errores: cualquier error que ocurra en una ruta llega aquí
+// y se devuelve como JSON legible, en vez de romper la conexión sin explicación.
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: err.message || 'Error interno del servidor' });
+});
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`SIGE backend corriendo en puerto ${PORT}`));
