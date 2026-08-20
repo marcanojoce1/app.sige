@@ -9,44 +9,23 @@ export default function LoginScreen({ navigation }) {
   const [error, setError] = useState('');
 
   async function handleLogin() {
-    setError('');
-    setCargando(true);
+    setError(''); setCargando(true);
     try {
       const user = await login(usuario, password);
-      // Igual que TallerOS: cada rol ve un Home distinto
       if (user.rol === 'docente') navigation.replace('HomeDocente');
       else if (user.rol === 'representante') navigation.replace('HomeRepresentante');
       else if (user.rol === 'estudiante') navigation.replace('HomeEstudiante');
-      else navigation.replace('HomeDocente'); // fallback
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setCargando(false);
-    }
+      else navigation.replace('HomeDocente');
+    } catch (e) { setError(e.message); } finally { setCargando(false); }
   }
 
   return (
     <View style={styles.container}>
       <Text style={styles.titulo}>SIGE Venezuela</Text>
       <Text style={styles.subtitulo}>Sistema Integral de Gestión Escolar</Text>
-
-      <TextInput
-        style={styles.input}
-        placeholder="Usuario"
-        value={usuario}
-        onChangeText={setUsuario}
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-
+      <TextInput style={styles.input} placeholder="Usuario" value={usuario} onChangeText={setUsuario} autoCapitalize="none" />
+      <TextInput style={styles.input} placeholder="Contraseña" value={password} onChangeText={setPassword} secureTextEntry />
       {!!error && <Text style={styles.error}>{error}</Text>}
-
       <TouchableOpacity style={styles.boton} onPress={handleLogin} disabled={cargando}>
         {cargando ? <ActivityIndicator color="#fff" /> : <Text style={styles.botonTexto}>Ingresar</Text>}
       </TouchableOpacity>

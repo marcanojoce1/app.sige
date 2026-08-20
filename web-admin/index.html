@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>SIGE Venezuela — Demo</title>
+<title>SIGE Venezuela</title>
 <style>
   :root{
     --navy-50:#EAF0F6; --navy-100:#C7D7E8; --navy-300:#5A85AE; --navy-500:#2C5578;
@@ -16,9 +16,6 @@
   }
   *{box-sizing:border-box;}
   body{margin:0;font-family:'Segoe UI',Roboto,-apple-system,Arial,sans-serif;background:var(--paper);color:var(--ink);}
-  ::selection{background:var(--amber-300);}
-
-  /* LOGIN */
   #login{min-height:600px;display:flex;align-items:center;justify-content:center;background:
     linear-gradient(180deg,var(--navy-900) 0%, var(--navy-700) 100%);}
   .login-box{width:360px;background:var(--card);border-radius:10px;padding:36px 32px;box-shadow:0 20px 50px rgba(0,0,0,.35);}
@@ -28,381 +25,90 @@
   .login-sub{font-size:12.5px;color:var(--ink-mute);margin:0 0 26px 44px;letter-spacing:.02em;}
   .field{margin-bottom:16px;}
   .field label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:5px;font-weight:600;}
-  .field select, .field input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:6px;font-size:13.5px;background:#FBFAF7;color:var(--ink);}
-  .field select:focus, .field input:focus{outline:none;border-color:var(--navy-300);}
+  .field input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:6px;font-size:13.5px;background:#FBFAF7;color:var(--ink);}
+  .field input:focus{outline:none;border-color:var(--navy-300);}
   .btn-primary{width:100%;padding:11px;border:none;border-radius:6px;background:var(--navy-700);color:#fff;font-size:13.5px;font-weight:600;cursor:pointer;margin-top:6px;}
   .btn-primary:hover{background:var(--navy-900);}
-  .login-hint{margin-top:16px;font-size:11.5px;color:var(--ink-mute);text-align:center;}
-
-  /* APP SHELL */
+  .login-hint{margin-top:16px;font-size:11px;color:var(--ink-mute);text-align:center;}
   #app{display:none;min-height:640px;}
   .shell{display:grid;grid-template-columns:230px 1fr;min-height:640px;}
   .side{background:var(--navy-900);color:#EDEFF2;padding:18px 0;display:flex;flex-direction:column;}
   .side-brand{display:flex;align-items:center;gap:9px;padding:0 18px 18px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:10px;}
   .side-brand .sq{width:28px;height:28px;border-radius:7px;background:var(--amber-500);color:var(--navy-900);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12.5px;font-family:Georgia,serif;}
   .side-brand .name{font-family:Georgia,serif;font-size:15.5px;font-weight:700;}
-  .side-org{font-size:10.5px;color:#9FB0C2;padding:0 18px 14px;letter-spacing:.03em;text-transform:uppercase;}
   .side-group{font-size:10px;color:#7F91A5;text-transform:uppercase;letter-spacing:.06em;padding:14px 18px 6px;}
   .side a{display:flex;align-items:center;gap:10px;padding:8px 18px;font-size:13px;color:#D7DEE6;text-decoration:none;cursor:pointer;border-left:3px solid transparent;}
   .side a:hover{background:rgba(255,255,255,.05);}
   .side a.active{background:rgba(255,255,255,.09);border-left-color:var(--amber-500);color:#fff;font-weight:600;}
-  .side .ico{width:16px;text-align:center;font-size:12px;opacity:.85;}
-  .side-foot{margin-top:auto;padding:14px 18px 4px;border-top:1px solid rgba(255,255,255,.08);font-size:11.5px;color:#9FB0C2;}
-
   .main{padding:22px 30px 40px;overflow:auto;}
   .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;}
   .topbar h1{font-family:Georgia,serif;font-size:21px;margin:0;color:var(--navy-900);}
   .topbar .who{font-size:12.5px;color:var(--ink-soft);text-align:right;}
   .who b{color:var(--navy-900);}
-
-  .view{display:none;}
-  .view.active{display:block;}
-
-  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
-  .kpi{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:16px 16px;}
-  .kpi .label{font-size:11.5px;color:var(--ink-mute);text-transform:uppercase;letter-spacing:.03em;}
-  .kpi .val{font-size:24px;font-weight:700;color:var(--navy-900);margin-top:4px;font-family:Georgia,serif;}
-  .kpi .delta{font-size:11.5px;margin-top:4px;}
-  .up{color:var(--green-tx);} .down{color:var(--red-tx);} .warn{color:var(--amber-tx);}
-
-  .grid2{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;}
+  .view{display:none;} .view.active{display:block;}
   .card{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:18px 20px;margin-bottom:16px;}
   .card h3{margin:0 0 12px;font-size:14.5px;color:var(--navy-900);font-family:Georgia,serif;}
-  .card p.muted{color:var(--ink-mute);font-size:12.5px;margin:0 0 12px;}
-
   table{width:100%;border-collapse:collapse;font-size:12.8px;}
-  th{text-align:left;color:var(--ink-mute);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.02em;padding:7px 8px;border-bottom:1px solid var(--line);}
+  th{text-align:left;color:var(--ink-mute);font-weight:600;font-size:11px;text-transform:uppercase;padding:7px 8px;border-bottom:1px solid var(--line);}
   td{padding:9px 8px;border-bottom:1px solid #EFEDE6;color:var(--ink);}
-  tr:last-child td{border-bottom:none;}
   .tag{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;}
   .tag.green{background:var(--green-bg);color:var(--green-tx);}
-  .tag.red{background:var(--red-bg);color:var(--red-tx);}
-  .tag.amber{background:var(--amber-bg);color:var(--amber-tx);}
   .tag.gray{background:#EFEDE6;color:var(--ink-soft);}
-
   .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
   .toolbar input[type=text]{padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:12.8px;width:220px;background:#FBFAF7;}
   .btn-ghost{padding:8px 14px;border:1px solid var(--navy-300);border-radius:6px;background:#fff;color:var(--navy-700);font-size:12.5px;font-weight:600;cursor:pointer;}
-  .btn-ghost:hover{background:var(--navy-50);}
   .btn-amber{padding:8px 14px;border:none;border-radius:6px;background:var(--amber-500);color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;}
-  .btn-amber:hover{background:var(--amber-700);}
-
-  .catalogs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-  .cat-btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:14px 10px;text-align:center;font-size:12.5px;font-weight:600;color:var(--navy-700);cursor:pointer;}
-  .cat-btn:hover{border-color:var(--navy-300);background:var(--navy-50);}
-  .cat-btn .n{display:block;font-size:20px;margin-bottom:4px;}
-
-  .rubric-row{display:grid;grid-template-columns:1fr 70px;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid #EFEDE6;font-size:12.8px;}
-  .rubric-row input{width:56px;padding:5px;border:1px solid var(--line);border-radius:5px;text-align:center;font-size:12.5px;}
-
-  .modules-note{font-size:11.5px;color:var(--ink-mute);background:var(--navy-50);border:1px dashed var(--navy-100);border-radius:7px;padding:10px 12px;margin-bottom:16px;}
-  .stub{padding:50px 10px;text-align:center;color:var(--ink-mute);font-size:13px;}
-  .stub .big{font-size:30px;margin-bottom:8px;}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="login">
   <div class="login-box">
     <div class="login-mark"><div class="sq">S</div><div class="name">SIGE Venezuela</div></div>
     <p class="login-sub">Sistema Integral de Gestión Escolar</p>
-    <div class="field">
-      <label>Colegio</label>
-      <select id="orgSel">
-        <option>U.E. Colegio Fe y Alegría — Barquisimeto</option>
-        <option>U.E. Instituto Simón Rodríguez — Maracay</option>
-      </select>
-    </div>
     <div class="field"><label>Usuario</label><input type="text" id="loginUsuario" value="superadmin"></div>
     <div class="field"><label>Contraseña</label><input type="password" id="loginPassword" value="cambiar123"></div>
     <button class="btn-primary" onclick="entrar()">Ingresar</button>
     <p id="loginError" style="color:#A32D2D;font-size:12px;margin-top:10px;"></p>
-    <p class="login-hint">Conectado a la API en <code id="apiUrlShown"></code> — edita API_URL en el código si tu backend corre en otra dirección</p>
+    <p class="login-hint">API: <span id="apiUrlShown"></span></p>
   </div>
 </div>
 
-<!-- APP -->
 <div id="app">
 <div class="shell">
   <div class="side">
     <div class="side-brand"><div class="sq">S</div><div class="name">SIGE</div></div>
-    <div class="side-org">U.E. Fe y Alegría</div>
-
     <div class="side-group">General</div>
-    <a class="nav active" data-v="v-dash" onclick="go('v-dash',this)"><span class="ico">▣</span>Dashboard</a>
-
+    <a class="nav active" data-v="v-dash" onclick="go('v-dash',this)">Dashboard</a>
     <div class="side-group">Usuarios</div>
-    <a class="nav" data-v="v-users" onclick="go('v-users',this)"><span class="ico">◈</span>Usuarios y accesos</a>
-    <a class="nav" data-v="v-teachers" onclick="go('v-teachers',this)"><span class="ico">◈</span>Gestión de docentes</a>
-
-    <div class="side-group">Académico</div>
-    <a class="nav" data-v="v-students" onclick="go('v-students',this)"><span class="ico">◈</span>Estudiantes / matrícula</a>
-    <a class="nav" data-v="v-schedule" onclick="go('v-schedule',this)"><span class="ico">◈</span>Horarios</a>
-    <a class="nav" data-v="v-instr" onclick="go('v-instr',this)"><span class="ico">◈</span>Instrumentos de evaluación</a>
-    <a class="nav" data-v="v-rage" onclick="go('v-rage',this)"><span class="ico">◈</span>RAGE</a>
-    <a class="nav" data-v="v-boletin" onclick="go('v-boletin',this)"><span class="ico">◈</span>Boletines</a>
-    <a class="nav" data-v="v-asist" onclick="go('v-asist',this)"><span class="ico">◈</span>Asistencia</a>
-
-    <div class="side-group">Administración</div>
-    <a class="nav" data-v="v-pagos" onclick="go('v-pagos',this)"><span class="ico">◈</span>Pensiones y pagos</a>
-    <a class="nav" data-v="v-docs" onclick="go('v-docs',this)"><span class="ico">◈</span>Documentos y certificados</a>
-    <a class="nav" data-v="v-cal" onclick="go('v-cal',this)"><span class="ico">◈</span>Calendario escolar</a>
-    <a class="nav" data-v="v-com" onclick="go('v-com',this)"><span class="ico">◈</span>Comunicaciones</a>
-
+    <a class="nav" data-v="v-users" onclick="go('v-users',this)">Usuarios y accesos</a>
     <div class="side-group">Sistema</div>
-    <a class="nav" data-v="v-config" onclick="go('v-config',this)"><span class="ico">◈</span>Configuración</a>
-
-    <div class="side-foot">v0.1 demo · Director conectado</div>
+    <a class="nav" data-v="v-config" onclick="go('v-config',this)">Configuración</a>
   </div>
-
   <div class="main">
-
     <div class="topbar">
       <h1 id="pageTitle">Dashboard</h1>
-      <div class="who"><b>Prof. Carmen Rojas</b> · Directora<br>U.E. Colegio Fe y Alegría</div>
+      <div class="who"></div>
     </div>
-
-    <!-- DASHBOARD -->
     <div class="view active" id="v-dash">
-      <div class="kpis">
-        <div class="kpi"><div class="label">Promedio institucional</div><div class="val">16,4</div><div class="delta up">↑ 0,3 vs. II Momento</div></div>
-        <div class="kpi"><div class="label">Asistencia hoy</div><div class="val">93%</div><div class="delta down">↓ 2% vs. semana pasada</div></div>
-        <div class="kpi"><div class="label">Estudiantes en riesgo</div><div class="val">7</div><div class="delta warn">3 en Matemática</div></div>
-        <div class="kpi"><div class="label">Pensiones al día</div><div class="val">81%</div><div class="delta down">42 representantes morosos</div></div>
-      </div>
-      <div class="grid2">
-        <div class="card">
-          <h3>Materias críticas — III Momento</h3>
-          <table><tr><th>Materia</th><th>Grado</th><th>Promedio</th><th>Estado</th></tr>
-          <tr><td>Matemática</td><td>3er grado B</td><td>11,2</td><td><span class="tag red">Crítico</span></td></tr>
-          <tr><td>Ciencias Naturales</td><td>5to grado A</td><td>13,8</td><td><span class="tag amber">Atención</span></td></tr>
-          <tr><td>Lenguaje</td><td>2do grado C</td><td>15,9</td><td><span class="tag green">Bien</span></td></tr>
-          </table>
-        </div>
-        <div class="card">
-          <h3>Pendientes de coordinación</h3>
-          <table><tr><th>Docente</th><th>Pendiente</th></tr>
-          <tr><td>Prof. Luis Marín</td><td>2 instrumentos por aprobar</td></tr>
-          <tr><td>Prof. Yajaira Pérez</td><td>RAGE II Momento incompleto</td></tr>
-          <tr><td>Prof. Carlos Díaz</td><td>Boletín pendiente de firma</td></tr>
-          </table>
-        </div>
-      </div>
+      <div class="card"><h3>Bienvenido</h3><p>Ya estás conectado al backend real. Desde aquí seguimos construyendo cada módulo.</p></div>
     </div>
-
-    <!-- USUARIOS -->
     <div class="view" id="v-users">
-      <div class="modules-note">Mismo patrón de TallerOS: filtro por colegio (Super Administrador), buscador, tabla con botón Editar y un modal único para crear/editar usuario. Ahora incluye permisos individuales por usuario (no solo por rol) y el registro de Representantes/Estudiantes para acceso al aplicativo.</div>
-      <div class="toolbar"><input type="text" placeholder="Buscar por nombre o cédula..."><button class="btn-amber">+ Nuevo usuario</button></div>
-      <div class="card">
-        <table><tr><th>Nombre</th><th>Rol</th><th>Usuario</th><th>Permisos</th><th>Estado</th><th></th></tr>
-        <tr><td>Carmen Rojas</td><td>Administrador (Director)</td><td>director.fya</td><td><span class="tag gray">Todos</span></td><td><span class="tag green">Activo</span></td><td><button class="btn-ghost">Editar</button></td></tr>
-        <tr><td>Luis Marín</td><td>Docente</td><td>lmarin</td><td><span class="tag amber">Solo notas</span></td><td><span class="tag green">Activo</span></td><td><button class="btn-ghost">Editar</button></td></tr>
-        <tr><td>Yajaira Pérez</td><td>Coordinador académico</td><td>yperez</td><td><span class="tag gray">Estándar</span></td><td><span class="tag green">Activo</span></td><td><button class="btn-ghost">Editar</button></td></tr>
-        <tr><td>Rosa Gómez</td><td>Secretaría</td><td>rgomez</td><td><span class="tag amber">Solo constancias</span></td><td><span class="tag gray">Inactivo</span></td><td><button class="btn-ghost">Editar</button></td></tr>
-        <tr><td>María Pérez</td><td>Representante</td><td>maria.perez</td><td><span class="tag gray">App — consulta</span></td><td><span class="tag green">Activo</span></td><td><button class="btn-ghost">Editar</button></td></tr>
-        </table>
-      </div>
-      <div class="card">
-        <h3>Permisos de: Rosa Gómez (Secretaría)</h3>
-        <table><tr><th>Módulo</th><th>Ver</th><th>Crear</th><th>Editar</th><th>Aprobar</th></tr>
-        <tr><td>Documentos y certificados</td><td>✓</td><td>✓</td><td>—</td><td>—</td></tr>
-        <tr><td>Estudiantes / matrícula</td><td>✓</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Notas / RAGE</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Configuración</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-        </table>
-      </div>
+      <div class="toolbar"><input type="text" placeholder="Buscar..."><button class="btn-amber">+ Nuevo usuario</button></div>
+      <div class="card"><table id="tablaUsuarios"><tr><th>Nombre</th><th>Rol</th><th>Usuario</th><th>Estado</th></tr></table></div>
     </div>
-
-    <!-- DOCENTES -->
-    <div class="view" id="v-teachers">
-      <div class="toolbar"><input type="text" placeholder="Buscar docente..."><button class="btn-amber">+ Nuevo docente</button></div>
-      <div class="card">
-        <table><tr><th>Docente</th><th>Área</th><th>Secciones asignadas</th><th>Asistencia mes</th></tr>
-        <tr><td>Luis Marín</td><td>Matemática</td><td>3er B, 4to A</td><td>96%</td></tr>
-        <tr><td>Yajaira Pérez</td><td>Lenguaje</td><td>2do C, 3er A</td><td>100%</td></tr>
-        <tr><td>Carlos Díaz</td><td>Ciencias Sociales</td><td>5to A, 6to B</td><td>91%</td></tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- ESTUDIANTES / MATRÍCULA -->
-    <div class="view" id="v-students">
-      <div class="toolbar"><input type="text" placeholder="Buscar por cédula o nombre..."><button class="btn-amber">+ Nueva matrícula</button></div>
-      <div class="card">
-        <table><tr><th>Estudiante</th><th>Grado / Sección</th><th>Representante</th><th>Estado</th><th></th></tr>
-        <tr><td>José Pérez</td><td>3er grado U</td><td>María Pérez</td><td><span class="tag green">Activo</span></td><td><button class="btn-ghost">Expediente</button></td></tr>
-        <tr><td>Ana Gutiérrez</td><td>5to grado A</td><td>Pedro Gutiérrez</td><td><span class="tag green">Activo</span></td><td><button class="btn-ghost">Expediente</button></td></tr>
-        <tr><td>Miguel Torres</td><td>2do grado C</td><td>Luisa Torres</td><td><span class="tag amber">Traslado</span></td><td><button class="btn-ghost">Expediente</button></td></tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- HORARIOS -->
-    <div class="view" id="v-schedule">
-      <div class="card">
-        <h3>Horario — 3er grado sección B</h3>
-        <table><tr><th>Hora</th><th>Lunes</th><th>Martes</th><th>Miércoles</th></tr>
-        <tr><td>7:30–8:20</td><td>Matemática (L. Marín)</td><td>Lenguaje (Y. Pérez)</td><td>Educación Física</td></tr>
-        <tr><td>8:20–9:10</td><td>Matemática (L. Marín)</td><td>Ciencias Naturales</td><td>Lenguaje (Y. Pérez)</td></tr>
-        <tr><td>9:10–10:00</td><td>Ciencias Sociales</td><td>Matemática (L. Marín)</td><td>Arte</td></tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- INSTRUMENTOS -->
-    <div class="view" id="v-instr">
-      <div class="modules-note">Reemplazo directo del Excel de la profesora: el docente arma el instrumento eligiendo del banco de indicadores/contenidos oficial (catálogo global) y define la rúbrica. Los "tipos de instrumento" son un catálogo editable — se pueden agregar nuevos sin tocar código.</div>
-      <div class="grid2">
-        <div class="card">
-          <h3>Nuevo instrumento de evaluación</h3>
-          <table>
-          <tr><td style="color:var(--ink-mute)">Área</td><td>Lenguaje</td></tr>
-          <tr><td style="color:var(--ink-mute)">Contenido</td><td>Concordancia de género y número</td></tr>
-          <tr><td style="color:var(--ink-mute)">Indicador</td><td>Establece la concordancia de género y número en la producción oral y escrita</td></tr>
-          <tr><td style="color:var(--ink-mute)">Tipo</td><td>Exposición <button class="btn-ghost" style="padding:3px 8px;font-size:11px;margin-left:6px;">+ Agregar tipo nuevo</button></td></tr>
-          <tr><td style="color:var(--ink-mute)">Fecha</td><td>15/09/2026</td></tr>
-          </table>
-        </div>
-        <div class="card">
-          <h3>Criterios de la rúbrica</h3>
-          <div class="rubric-row"><span>Pronunciación</span><input value="5"></div>
-          <div class="rubric-row"><span>Fluidez</span><input value="5"></div>
-          <div class="rubric-row"><span>Material de apoyo</span><input value="5"></div>
-          <div class="rubric-row"><span>Dominio del tema</span><input value="5"></div>
-          <div class="rubric-row" style="font-weight:700;border-bottom:none;"><span>Total</span><input value="20" style="background:var(--navy-50);"></div>
-          <button class="btn-amber" style="margin-top:12px;width:100%;">Guardar instrumento</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- RAGE -->
-    <div class="view" id="v-rage">
-      <div class="modules-note">Se actualiza solo al guardar cada evaluación — sin copiar nada a otro Excel.</div>
-      <div class="card">
-        <h3>RAGE — 3er grado U, III Momento</h3>
-        <table><tr><th>Estudiante</th><th>Lenguaje</th><th>Matemática</th><th>Ciencias Naturales</th><th>Promedio</th></tr>
-        <tr><td>José Pérez</td><td>19</td><td>15</td><td>17</td><td>17,0</td></tr>
-        <tr><td>Ana Gutiérrez</td><td>18</td><td>12</td><td>16</td><td>15,3</td></tr>
-        <tr><td>Miguel Torres</td><td>14</td><td>11</td><td>13</td><td>12,7</td></tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- BOLETINES -->
-    <div class="view" id="v-boletin">
-      <div class="card">
-        <h3>Boletines pendientes de emisión</h3>
-        <table><tr><th>Sección</th><th>Momento</th><th>Estudiantes</th><th>Estado</th><th></th></tr>
-        <tr><td>3er grado U</td><td>III Momento</td><td>28</td><td><span class="tag green">Listo</span></td><td><button class="btn-ghost">Generar PDF</button></td></tr>
-        <tr><td>5to grado A</td><td>III Momento</td><td>30</td><td><span class="tag amber">1 nota pendiente</span></td><td><button class="btn-ghost">Revisar</button></td></tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- ASISTENCIA -->
-    <div class="view" id="v-asist">
-      <div class="card">
-        <h3>Asistencia — 3er grado U — 06/08/2026</h3>
-        <table><tr><th>Estudiante</th><th>Estado</th></tr>
-        <tr><td>José Pérez</td><td><span class="tag green">Asistió</span></td></tr>
-        <tr><td>Ana Gutiérrez</td><td><span class="tag green">Asistió</span></td></tr>
-        <tr><td>Miguel Torres</td><td><span class="tag red">Inasistencia</span></td></tr>
-        <tr><td>Carla Ruiz</td><td><span class="tag amber">Retardo</span></td></tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- PAGOS -->
-    <div class="view" id="v-pagos">
-      <div class="modules-note">Solo activo si el colegio se configura como privado o mixto.</div>
-      <div class="card">
-        <h3>Estado de cuenta — representantes</h3>
-        <table><tr><th>Representante</th><th>Estudiante</th><th>Concepto</th><th>Monto</th><th>Estado</th></tr>
-        <tr><td>María Pérez</td><td>José Pérez</td><td>Mensualidad agosto</td><td>$25</td><td><span class="tag green">Pagado</span></td></tr>
-        <tr><td>Pedro Gutiérrez</td><td>Ana Gutiérrez</td><td>Mensualidad agosto</td><td>$25</td><td><span class="tag red">Vencido</span></td></tr>
-        <tr><td>Luisa Torres</td><td>Miguel Torres</td><td>Mensualidad agosto</td><td>$25</td><td><span class="tag amber">Por vencer</span></td></tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- DOCUMENTOS -->
-    <div class="view" id="v-docs">
-      <div class="toolbar"><input type="text" placeholder="Buscar estudiante..."><button class="btn-amber">+ Emitir documento</button></div>
-      <div class="card">
-        <table><tr><th>N°</th><th>Estudiante</th><th>Tipo</th><th>Fecha</th><th>Código</th></tr>
-        <tr><td>0231</td><td>José Pérez</td><td>Constancia de estudio</td><td>02/08/2026</td><td>SIGE-7K4D9A</td></tr>
-        <tr><td>0230</td><td>Ana Gutiérrez</td><td>Certificado de notas</td><td>29/07/2026</td><td>SIGE-2P8M1X</td></tr>
-        </table>
-      </div>
-      <div class="card">
-        <h3>Validar documento</h3>
-        <p class="muted">El representante descarga la constancia desde la app con un código único al pie. Aquí se verifica que sea original.</p>
-        <div class="toolbar"><input type="text" placeholder="Código, ej. SIGE-7K4D9A" style="width:260px;"><button class="btn-ghost">Validar</button></div>
-        <table><tr><th>Código</th><th>Estudiante</th><th>Documento</th><th>Resultado</th></tr>
-        <tr><td>SIGE-7K4D9A</td><td>José Pérez</td><td>Constancia de estudio, 02/08/2026</td><td><span class="tag green">Válido</span></td></tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- CALENDARIO -->
-    <div class="view" id="v-cal">
-      <div class="card">
-        <h3>Próximos eventos</h3>
-        <table><tr><th>Fecha</th><th>Evento</th><th>Alcance</th></tr>
-        <tr><td>15/08/2026</td><td>Inicio semana de evaluaciones</td><td>Todo el colegio</td></tr>
-        <tr><td>22/08/2026</td><td>Entrega de boletines III Momento</td><td>Todo el colegio</td></tr>
-        <tr><td>28/08/2026</td><td>Reunión de representantes</td><td>3er grado</td></tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- COMUNICACIONES -->
-    <div class="view" id="v-com">
-      <div class="toolbar"><span></span><button class="btn-amber">+ Nueva circular</button></div>
-      <div class="card">
-        <table><tr><th>Fecha</th><th>Circular</th><th>Enviada a</th><th>Lecturas</th></tr>
-        <tr><td>04/08/2026</td><td>Inicio de semana de evaluaciones</td><td>Todo el colegio</td><td>212/240</td></tr>
-        <tr><td>29/07/2026</td><td>Cambio de horario de salida</td><td>Primaria</td><td>140/150</td></tr>
-        </table>
-      </div>
-    </div>
-
-    <!-- CONFIGURACIÓN -->
     <div class="view" id="v-config">
-      <div class="modules-note">Mismo patrón de TallerOS: catálogos en botones, modal para agregar/editar/eliminar, más "Editar Colegio" (nombre bloqueado, resto editable con vista previa).</div>
-      <div class="card">
-        <h3>Catálogos del colegio</h3>
-        <div class="catalogs">
-          <div class="cat-btn"><span class="n">3</span>Momentos/lapsos</div>
-          <div class="cat-btn"><span class="n">6</span>Grados</div>
-          <div class="cat-btn"><span class="n">18</span>Secciones</div>
-          <div class="cat-btn"><span class="n">12</span>Materias</div>
-          <div class="cat-btn"><span class="n">1</span>Escala de evaluación</div>
-          <div class="cat-btn"><span class="n">9</span>Tipos de instrumento</div>
-          <div class="cat-btn"><span class="n">4</span>Tipos de inasistencia</div>
-          <div class="cat-btn"><span class="n">5</span>Conceptos de pago</div>
-        </div>
-      </div>
-      <div class="card">
-        <h3>Editar colegio</h3>
-        <table>
-        <tr><td style="color:var(--ink-mute);width:160px;">Nombre</td><td>U.E. Colegio Fe y Alegría <span class="tag gray">bloqueado</span></td></tr>
-        <tr><td style="color:var(--ink-mute)">Logo</td><td>fya-logo.png</td></tr>
-        <tr><td style="color:var(--ink-mute)">Condiciones boletín</td><td>Editable, se refleja en el PDF</td></tr>
-        <tr><td style="color:var(--ink-mute)">Pie de página</td><td>Editable, con vista previa en tiempo real</td></tr>
-        </table>
-      </div>
+      <div class="card"><h3>Configuración</h3><p>Catálogos del colegio — próximo módulo a construir.</p></div>
     </div>
-
   </div>
 </div>
 </div>
 
 <script>
-// Cambia esto si tu backend corre en otra URL (ej. tu dominio de Render en producción)
-const API_URL = 'http://localhost:4000/api';
+// Detecta automáticamente si debe hablar con localhost (desarrollo) o con el mismo dominio donde se sirve la página (producción)
+const API_URL = (location.hostname === 'localhost' || location.protocol === 'file:')
+  ? 'http://localhost:4000/api'
+  : location.origin + '/api';
 document.getElementById('apiUrlShown').textContent = API_URL;
 
 let TOKEN = null;
@@ -411,11 +117,7 @@ let USUARIO_ACTUAL = null;
 async function api(path, options = {}) {
   const res = await fetch(API_URL + path, {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(TOKEN ? { Authorization: 'Bearer ' + TOKEN } : {}),
-      ...(options.headers || {}),
-    },
+    headers: { 'Content-Type': 'application/json', ...(TOKEN ? { Authorization: 'Bearer ' + TOKEN } : {}), ...(options.headers || {}) },
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || 'Error de conexión con el backend');
@@ -429,16 +131,13 @@ async function entrar(){
   errorEl.textContent = '';
   try{
     const data = await api('/auth/login', { method:'POST', body: JSON.stringify({ usuario, password }) });
-    TOKEN = data.token;
-    USUARIO_ACTUAL = data.usuario;
+    TOKEN = data.token; USUARIO_ACTUAL = data.usuario;
     document.getElementById('login').style.display='none';
     document.getElementById('app').style.display='block';
     document.querySelector('.who').innerHTML = `<b>${USUARIO_ACTUAL.nombre_completo}</b> · ${USUARIO_ACTUAL.rol}<br>${USUARIO_ACTUAL.organizacion_nombre || 'Todos los colegios'}`;
     cargarUsuarios();
   }catch(e){
-    errorEl.textContent = e.message.includes('fetch') || e.message.includes('conexión')
-      ? 'No se pudo conectar al backend en ' + API_URL + '. Verifica que esté corriendo (npm start en /backend).'
-      : e.message;
+    errorEl.textContent = e.message.includes('fetch') ? 'No se pudo conectar al backend en ' + API_URL : e.message;
   }
 }
 
@@ -451,48 +150,15 @@ function go(id, el){
   if(id === 'v-users') cargarUsuarios();
 }
 
-// Reemplaza las filas de ejemplo de "Usuarios y accesos" con datos reales del backend
 async function cargarUsuarios(){
   if(!TOKEN) return;
   try{
-    const orgQuery = USUARIO_ACTUAL.rol === 'super_admin' ? '' : '';
-    const usuarios = await api('/usuarios' + orgQuery);
-    const tabla = document.querySelector('#v-users table');
-    if(!tabla) return;
-    const filas = usuarios.map(u => `
-      <tr>
-        <td>${u.nombre_completo}</td>
-        <td>${u.rol}</td>
-        <td>${u.usuario}</td>
-        <td><span class="tag gray">—</span></td>
-        <td><span class="tag ${u.activo ? 'green' : 'gray'}">${u.activo ? 'Activo' : 'Inactivo'}</span></td>
-        <td><button class="btn-ghost">Editar</button></td>
-      </tr>`).join('');
-    tabla.innerHTML = `<tr><th>Nombre</th><th>Rol</th><th>Usuario</th><th>Permisos</th><th>Estado</th><th></th></tr>${filas || '<tr><td colspan="6" style="color:var(--ink-mute)">Sin usuarios registrados todavía — solo existe el Super Administrador inicial.</td></tr>'}`;
-  }catch(e){
-    console.error('No se pudieron cargar usuarios:', e.message);
-  }
+    const usuarios = await api('/usuarios');
+    const tabla = document.getElementById('tablaUsuarios');
+    const filas = usuarios.map(u => `<tr><td>${u.nombre_completo}</td><td>${u.rol}</td><td>${u.usuario}</td><td><span class="tag ${u.activo?'green':'gray'}">${u.activo?'Activo':'Inactivo'}</span></td></tr>`).join('');
+    tabla.innerHTML = `<tr><th>Nombre</th><th>Rol</th><th>Usuario</th><th>Estado</th></tr>${filas || '<tr><td colspan="4" style="color:var(--ink-mute)">Sin usuarios todavía.</td></tr>'}`;
+  }catch(e){ console.error(e.message); }
 }
-
-// Conecta el botón "Validar" de Documentos con la API real
-document.addEventListener('DOMContentLoaded', () => {
-  const btnValidar = document.querySelector('#v-docs .toolbar .btn-ghost');
-  if(btnValidar){
-    btnValidar.addEventListener('click', async () => {
-      const input = document.querySelector('#v-docs .toolbar input');
-      const codigo = input.value.trim();
-      if(!codigo) return;
-      try{
-        const data = await api('/documentos/validar', { method:'POST', body: JSON.stringify({ codigo }) });
-        alert(data.resultado === 'valido'
-          ? `✔ Válido — ${data.documento.estudiante}, ${data.documento.tipo}`
-          : `✘ ${data.mensaje}`);
-      }catch(e){
-        alert('Error al validar: ' + e.message);
-      }
-    });
-  }
-});
 </script>
 </body>
 </html>

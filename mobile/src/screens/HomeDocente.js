@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { logout } from '../api';
 
 const MODULOS = [
@@ -22,10 +22,7 @@ export default function HomeDocente({ navigation }) {
           <Text style={styles.itemTexto}>{m.label}</Text>
         </TouchableOpacity>
       ))}
-      <TouchableOpacity
-        style={styles.salir}
-        onPress={async () => { await logout(); navigation.replace('Login'); }}
-      >
+      <TouchableOpacity style={styles.salir} onPress={async () => { await logout(); navigation.replace('Login'); }}>
         <Text style={styles.salirTexto}>Cerrar sesión</Text>
       </TouchableOpacity>
     </ScrollView>

@@ -16,42 +16,29 @@ export default function HomeRepresentante({ navigation }) {
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    apiFetch('/documentos/mis-documentos')
-      .then(setDocumentos)
-      .catch(() => {})
-      .finally(() => setCargando(false));
+    apiFetch('/documentos/mis-documentos').then(setDocumentos).catch(() => {}).finally(() => setCargando(false));
   }, []);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ padding: 20 }}>
       <Text style={styles.titulo}>Panel del Representante</Text>
-
       {MODULOS.map((m) => (
         <TouchableOpacity key={m.label} style={styles.item}>
           <Text style={styles.icon}>{m.icon}</Text>
           <Text style={styles.itemTexto}>{m.label}</Text>
         </TouchableOpacity>
       ))}
-
       <Text style={styles.subtitulo}>Mis constancias y certificados</Text>
       {cargando && <ActivityIndicator />}
-      {!cargando && documentos.length === 0 && (
-        <Text style={styles.vacio}>Aún no tienes documentos emitidos.</Text>
-      )}
+      {!cargando && documentos.length === 0 && <Text style={styles.vacio}>Aún no tienes documentos emitidos.</Text>}
       {documentos.map((d) => (
         <View key={d.id} style={styles.docCard}>
           <Text style={styles.docTipo}>{d.tipo.replace('_', ' ')}</Text>
           <Text style={styles.docCodigo}>Código: {d.codigo_validacion}</Text>
-          <TouchableOpacity style={styles.descargar}>
-            <Text style={styles.descargarTexto}>Descargar PDF</Text>
-          </TouchableOpacity>
+          <TouchableOpacity style={styles.descargar}><Text style={styles.descargarTexto}>Descargar PDF</Text></TouchableOpacity>
         </View>
       ))}
-
-      <TouchableOpacity
-        style={styles.salir}
-        onPress={async () => { await logout(); navigation.replace('Login'); }}
-      >
+      <TouchableOpacity style={styles.salir} onPress={async () => { await logout(); navigation.replace('Login'); }}>
         <Text style={styles.salirTexto}>Cerrar sesión</Text>
       </TouchableOpacity>
     </ScrollView>
