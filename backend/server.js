@@ -13,6 +13,11 @@ const rageRoutes = require('./routes/rage');
 const estudiantesRoutes = require('./routes/estudiantes');
 const catalogosRoutes = require('./routes/catalogos');
 const asignacionesRoutes = require('./routes/asignaciones');
+const asistenciaRoutes = require('./routes/asistencia');
+const boletinesRoutes = require('./routes/boletines');
+const calendarioRoutes = require('./routes/calendario');
+const comunicacionesRoutes = require('./routes/comunicaciones');
+const pagosRoutes = require('./routes/pagos');
 
 const app = express();
 app.use(cors());
@@ -27,6 +32,11 @@ app.use('/api/rage', rageRoutes);
 app.use('/api/estudiantes', estudiantesRoutes);
 app.use('/api/catalogos', catalogosRoutes);
 app.use('/api/asignaciones', asignacionesRoutes);
+app.use('/api/asistencia', asistenciaRoutes);
+app.use('/api/boletines', boletinesRoutes);
+app.use('/api/calendario', calendarioRoutes);
+app.use('/api/comunicaciones', comunicacionesRoutes);
+app.use('/api/pagos', pagosRoutes);
 
 app.get('/api', (req, res) => res.json({ ok: true, sistema: 'SIGE Venezuela backend' }));
 

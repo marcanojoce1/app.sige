@@ -110,9 +110,14 @@
     <a class="nav" data-v="v-asign" onclick="go('v-asign',this)">Asignación docente</a>
     <a class="nav" data-v="v-instr" onclick="go('v-instr',this)">Instrumentos de evaluación</a>
     <a class="nav" data-v="v-rage" onclick="go('v-rage',this)">RAGE</a>
+    <a class="nav" data-v="v-asist" onclick="go('v-asist',this)">Asistencia</a>
+    <a class="nav" data-v="v-boletin" onclick="go('v-boletin',this)">Boletines</a>
 
     <div class="side-group">Administración</div>
     <a class="nav" data-v="v-docs" onclick="go('v-docs',this)">Documentos y certificados</a>
+    <a class="nav" data-v="v-cal" onclick="go('v-cal',this)">Calendario</a>
+    <a class="nav" data-v="v-com" onclick="go('v-com',this)">Comunicaciones</a>
+    <a class="nav" data-v="v-pagos" onclick="go('v-pagos',this)">Pensiones y pagos</a>
 
     <div class="side-group">Sistema</div>
     <a class="nav" data-v="v-config" onclick="go('v-config',this)">Configuración</a>
@@ -235,6 +240,88 @@
         <button class="btn-ghost" onclick="verRage()">Consultar</button>
       </div>
       <div class="card"><table id="tablaRage"><tr><th>Estudiante</th><th>Materia</th><th>Total instrumento</th></tr></table></div>
+    </div>
+
+    <div class="view" id="v-asist">
+      <div class="card">
+        <h3>Tomar asistencia</h3>
+        <div class="grid2">
+          <div class="field"><label>Sección</label><select id="asisSeccion" onchange="cargarListaAsistencia()"></select></div>
+          <div class="field"><label>Fecha</label><input type="date" id="asisFecha" onchange="cargarListaAsistencia()"></div>
+        </div>
+        <button class="btn-ghost" onclick="marcarTodosPresentes()">Marcar todos presentes</button>
+        <table id="tablaAsistencia" style="margin-top:12px;"><tr><th>Estudiante</th><th>Estado</th></tr></table>
+        <button class="btn-amber" style="margin-top:10px;" onclick="guardarAsistencia()">Guardar asistencia</button>
+      </div>
+      <div class="card">
+        <h3>Resumen de inasistencias — sección seleccionada</h3>
+        <button class="btn-ghost" onclick="verResumenAsistencia()">Actualizar resumen</button>
+        <table id="tablaResumenAsistencia" style="margin-top:10px;"><tr><th>Estudiante</th><th>Total inasistencias</th></tr></table>
+      </div>
+    </div>
+
+    <div class="view" id="v-boletin">
+      <div class="card">
+        <h3>Boletín del estudiante</h3>
+        <div class="grid2">
+          <div class="field"><label>Estudiante</label><select id="bolEstudiante"></select></div>
+          <div class="field"><label>Momento</label><select id="bolMomento"><option>I</option><option>II</option><option>III</option></select></div>
+        </div>
+        <button class="btn-ghost" onclick="verBoletin()">Consultar</button>
+        <table id="tablaBoletin" style="margin-top:12px;"><tr><th>Materia</th><th>Total</th></tr></table>
+        <p id="asistenciaBoletin" style="font-size:12.5px;color:var(--ink-mute);"></p>
+        <button class="btn-amber" onclick="emitirBoletin()">Emitir boletín (con código de validación)</button>
+        <div id="bolMsg"></div>
+      </div>
+    </div>
+
+    <div class="view" id="v-cal">
+      <div class="card">
+        <h3>Nuevo evento</h3>
+        <div class="grid2">
+          <div class="field"><label>Título</label><input type="text" id="calTitulo"></div>
+          <div class="field"><label>Fecha</label><input type="date" id="calFecha"></div>
+          <div class="field"><label>Alcance</label><select id="calAlcance"><option value="colegio">Todo el colegio</option><option value="grado">Un grado</option><option value="seccion">Una sección</option></select></div>
+        </div>
+        <button class="btn-amber" onclick="crearEvento()">Crear evento</button>
+      </div>
+      <div class="card"><h3>Próximos eventos</h3><table id="tablaCalendario"><tr><th>Fecha</th><th>Evento</th><th>Alcance</th></tr></table></div>
+    </div>
+
+    <div class="view" id="v-com">
+      <div class="card">
+        <h3>Nueva circular</h3>
+        <div class="field"><label>Título</label><input type="text" id="comTitulo"></div>
+        <div class="field"><label>Mensaje</label><input type="text" id="comCuerpo"></div>
+        <button class="btn-amber" onclick="crearCircular()">Enviar circular</button>
+      </div>
+      <div class="card"><h3>Circulares enviadas</h3><table id="tablaCirculares"><tr><th>Fecha</th><th>Título</th><th>Mensaje</th></tr></table></div>
+    </div>
+
+    <div class="view" id="v-pagos">
+      <div class="card">
+        <h3>Registrar pago</h3>
+        <div id="pagoMsg"></div>
+        <div class="grid2">
+          <div class="field"><label>Estudiante</label><select id="pagoEstudiante"></select></div>
+          <div class="field"><label>Concepto</label><select id="pagoConcepto"></select></div>
+          <div class="field"><label>Monto</label><input type="number" id="pagoMonto"></div>
+          <div class="field"><label>Referencia</label><input type="text" id="pagoReferencia" placeholder="N° de referencia del pago"></div>
+        </div>
+        <button class="btn-amber" onclick="crearPago()">Registrar pago</button>
+      </div>
+      <div class="card">
+        <h3>Conceptos de pago</h3>
+        <div class="row" style="display:flex;gap:8px;">
+          <input type="text" id="nuevoConceptoNombre" placeholder="Ej: Mensualidad" style="flex:1;padding:8px;border:1px solid var(--line);border-radius:6px;">
+          <input type="number" id="nuevoConceptoMonto" placeholder="Monto" style="width:100px;padding:8px;border:1px solid var(--line);border-radius:6px;">
+          <button class="btn-ghost" onclick="crearConceptoPago()">Agregar</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Pagos registrados</h3>
+        <table id="tablaPagos"><tr><th>Estudiante</th><th>Concepto</th><th>Monto</th><th>Estado</th><th></th></tr></table>
+      </div>
     </div>
 
     <div class="view" id="v-docs">
@@ -418,7 +505,8 @@ async function cargarTodo(){
   if (USUARIO_ACTUAL.rol === 'super_admin') cargarOrganizaciones();
   await Promise.all([cargarUsuarios(), cargarEstudiantes(), cargarSeccionesSelects(), cargarMaterias(), cargarAreas(),
     cargarTiposInstrumento(), cargarGrados(), cargarTiposInasistencia(), cargarDocumentos(),
-    cargarAniosEscolares(), cargarNivelesGlobal(), cargarPeriodos(), cargarAsignaciones(), cargarDocentesSelect()]);
+    cargarAniosEscolares(), cargarNivelesGlobal(), cargarPeriodos(), cargarAsignaciones(), cargarDocentesSelect(),
+    cargarCalendario(), cargarCirculares(), cargarPagos(), cargarConceptosPagoSelect(), cargarSeccionesAsistencia()]);
   agregarCriterio(); agregarCriterio();
   renderWizard();
 }
@@ -829,6 +917,154 @@ async function renderWizard(){
     const completos = pasos.filter(p => p.ok).length;
     document.getElementById('wizardPasos').innerHTML += '<p style="margin-top:12px;font-size:12.5px;color:var(--ink-mute);">' + completos + ' de ' + pasos.length + ' pasos completados.' + (completos===pasos.length ? ' 🎉 Configuración 100% completada.' : '') + '</p>';
   }catch(e){}
+}
+
+/* ---------- ASISTENCIA ---------- */
+async function cargarSeccionesAsistencia(){
+  try{
+    const secciones = await api('/catalogos/secciones');
+    const opts = secciones.map(s => '<option value="' + s.id + '">' + s.grado_nombre + ' ' + s.nombre + '</option>').join('');
+    document.getElementById('asisSeccion').innerHTML = opts;
+    document.getElementById('asisFecha').value = new Date().toISOString().slice(0,10);
+  }catch(e){}
+}
+async function cargarListaAsistencia(){
+  const seccion_id = document.getElementById('asisSeccion').value;
+  const fecha = document.getElementById('asisFecha').value;
+  if(!seccion_id || !fecha) return;
+  const lista = await api('/asistencia?seccion_id=' + seccion_id + '&fecha=' + fecha);
+  const tiposInasistencia = await api('/catalogos/tipos-inasistencia');
+  const opciones = '<option value="">Presente</option>' + tiposInasistencia.map(t => '<option value="' + t.id + '">' + t.nombre + '</option>').join('');
+  document.getElementById('tablaAsistencia').innerHTML = '<tr><th>Estudiante</th><th>Estado</th></tr>' +
+    lista.map(e => '<tr data-estudiante="' + e.estudiante_id + '"><td>' + e.nombre_completo + '</td><td><select class="estadoAsistencia">' +
+      opciones.replace('value="' + (e.tipo_inasistencia_id||'') + '"', 'value="' + (e.tipo_inasistencia_id||'') + '" selected') + '</select></td></tr>').join('');
+}
+function marcarTodosPresentes(){
+  document.querySelectorAll('.estadoAsistencia').forEach(sel => sel.value = '');
+}
+async function guardarAsistencia(){
+  const seccion_id = document.getElementById('asisSeccion').value;
+  const fecha = document.getElementById('asisFecha').value;
+  const filas = document.querySelectorAll('#tablaAsistencia tr[data-estudiante]');
+  const registros = Array.from(filas).map(f => ({
+    estudiante_id: f.dataset.estudiante,
+    tipo_inasistencia_id: f.querySelector('.estadoAsistencia').value || null,
+  }));
+  await api('/asistencia', { method:'POST', body: JSON.stringify({ seccion_id, fecha, registros }) });
+  alert('Asistencia guardada');
+}
+async function verResumenAsistencia(){
+  const seccion_id = document.getElementById('asisSeccion').value;
+  if(!seccion_id) return;
+  const resumen = await api('/asistencia/resumen?seccion_id=' + seccion_id);
+  document.getElementById('tablaResumenAsistencia').innerHTML = '<tr><th>Estudiante</th><th>Total inasistencias</th></tr>' +
+    resumen.map(r => '<tr><td>' + r.nombre_completo + '</td><td>' + (r.total_inasistencias>2 ? '<span class="tag red">' : '<span class="tag gray">') + r.total_inasistencias + '</span></td></tr>').join('');
+}
+
+/* ---------- BOLETINES ---------- */
+async function verBoletin(){
+  const estudiante_id = document.getElementById('bolEstudiante').value;
+  const momento = document.getElementById('bolMomento').value;
+  if(!estudiante_id) return;
+  const data = await api('/boletines?estudiante_id=' + estudiante_id + '&momento=' + momento);
+  document.getElementById('tablaBoletin').innerHTML = '<tr><th>Materia</th><th>Total</th></tr>' +
+    data.notas.map(n => '<tr><td>' + n.materia + '</td><td>' + n.total + '</td></tr>').join('');
+  const a = data.asistencia;
+  document.getElementById('asistenciaBoletin').textContent = 'Asistencia: ' + (a.total_dias - a.inasistencias) + '/' + a.total_dias + ' días registrados';
+}
+async function emitirBoletin(){
+  try{
+    const estudiante_id = document.getElementById('bolEstudiante').value;
+    const doc = await api('/boletines/emitir', { method:'POST', body: JSON.stringify({ estudiante_id }) });
+    mostrarMsg('bolMsg', 'Boletín emitido — código: ' + doc.codigo_validacion, 'ok');
+    cargarDocumentos();
+  }catch(e){ mostrarMsg('bolMsg', e.message, 'err'); }
+}
+// Reutiliza la lista de estudiantes ya cargada para poblar el select del boletín
+const _cargarEstudiantesOriginal = cargarEstudiantes;
+cargarEstudiantes = async function(){
+  await _cargarEstudiantesOriginal();
+  try{
+    const estudiantes = await api('/estudiantes');
+    const opts = estudiantes.map(e => '<option value="' + e.id + '">' + e.nombre_completo + '</option>').join('');
+    const bolSel = document.getElementById('bolEstudiante'); if(bolSel) bolSel.innerHTML = opts;
+    const pagoSel = document.getElementById('pagoEstudiante'); if(pagoSel) pagoSel.innerHTML = opts;
+  }catch(e){}
+};
+
+/* ---------- CALENDARIO ---------- */
+async function cargarCalendario(){
+  try{
+    const eventos = await api('/calendario');
+    document.getElementById('tablaCalendario').innerHTML = '<tr><th>Fecha</th><th>Evento</th><th>Alcance</th></tr>' +
+      eventos.map(e => '<tr><td>' + e.fecha + '</td><td>' + e.titulo + '</td><td><span class="tag gray">' + e.alcance + '</span></td></tr>').join('');
+  }catch(e){}
+}
+async function crearEvento(){
+  const titulo = document.getElementById('calTitulo').value;
+  const fecha = document.getElementById('calFecha').value;
+  const alcance = document.getElementById('calAlcance').value;
+  if(!titulo || !fecha) return;
+  await api('/calendario', { method:'POST', body: JSON.stringify({ titulo, fecha, alcance }) });
+  document.getElementById('calTitulo').value='';
+  cargarCalendario();
+}
+
+/* ---------- COMUNICACIONES ---------- */
+async function cargarCirculares(){
+  try{
+    const circulares = await api('/comunicaciones/circulares');
+    document.getElementById('tablaCirculares').innerHTML = '<tr><th>Fecha</th><th>Título</th><th>Mensaje</th></tr>' +
+      circulares.map(c => '<tr><td>' + new Date(c.creado_en).toLocaleDateString() + '</td><td>' + c.titulo + '</td><td>' + c.cuerpo + '</td></tr>').join('');
+  }catch(e){}
+}
+async function crearCircular(){
+  const titulo = document.getElementById('comTitulo').value;
+  const cuerpo = document.getElementById('comCuerpo').value;
+  if(!titulo || !cuerpo) return;
+  await api('/comunicaciones/circulares', { method:'POST', body: JSON.stringify({ titulo, cuerpo }) });
+  document.getElementById('comTitulo').value=''; document.getElementById('comCuerpo').value='';
+  cargarCirculares();
+}
+
+/* ---------- PAGOS ---------- */
+async function cargarConceptosPagoSelect(){
+  try{
+    const conceptos = await api('/catalogos/conceptos-pago');
+    document.getElementById('pagoConcepto').innerHTML = conceptos.map(c => '<option value="' + c.id + '">' + c.nombre + ' ($' + c.monto + ')</option>').join('') || '<option value="">Crea un concepto abajo</option>';
+  }catch(e){}
+}
+async function crearConceptoPago(){
+  const nombre = document.getElementById('nuevoConceptoNombre').value;
+  const monto = document.getElementById('nuevoConceptoMonto').value;
+  if(!nombre || !monto) return;
+  await api('/catalogos/conceptos-pago', { method:'POST', body: JSON.stringify({ nombre, monto }) });
+  document.getElementById('nuevoConceptoNombre').value=''; document.getElementById('nuevoConceptoMonto').value='';
+  cargarConceptosPagoSelect();
+}
+async function cargarPagos(){
+  try{
+    const pagos = await api('/pagos');
+    document.getElementById('tablaPagos').innerHTML = '<tr><th>Estudiante</th><th>Concepto</th><th>Monto</th><th>Estado</th><th></th></tr>' +
+      pagos.map(p => '<tr><td>' + p.estudiante + '</td><td>' + p.concepto + '</td><td>$' + p.monto + '</td><td><span class="tag ' + (p.estado==='confirmado'?'green':p.estado==='rechazado'?'red':'amber') + '">' + p.estado + '</span></td><td>' +
+        (p.estado==='pendiente' ? '<button class="btn-ghost" onclick="confirmarPago(' + p.id + ')">Confirmar</button>' : '') + '</td></tr>').join('');
+  }catch(e){}
+}
+async function crearPago(){
+  try{
+    await api('/pagos', { method:'POST', body: JSON.stringify({
+      estudiante_id: document.getElementById('pagoEstudiante').value,
+      concepto_pago_id: document.getElementById('pagoConcepto').value,
+      monto: document.getElementById('pagoMonto').value,
+      referencia: document.getElementById('pagoReferencia').value,
+    })});
+    mostrarMsg('pagoMsg', 'Pago registrado como pendiente', 'ok');
+    cargarPagos();
+  }catch(e){ mostrarMsg('pagoMsg', e.message, 'err'); }
+}
+async function confirmarPago(id){
+  await api('/pagos/' + id + '/confirmar', { method:'PUT' });
+  cargarPagos();
 }
 </script>
 </body>
