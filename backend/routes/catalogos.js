@@ -242,4 +242,20 @@ router.post('/formatos-cedula', requireAuth, async (req, res) => {
   res.status(201).json(result.rows[0]);
 });
 
+// ---------- MONEDA ----------
+router.get('/monedas', requireAuth, async (req, res) => {
+  const result = await pool.query('SELECT * FROM monedas ORDER BY codigo_iso');
+  res.json(result.rows);
+});
+
+router.post('/monedas', requireAuth, async (req, res) => {
+  if (req.usuario.rol !== 'super_admin') return res.status(403).json({ error: 'Solo el Super Administrador administra este catálogo' });
+  const { nombre, simbolo, codigo_iso } = req.body;
+  const result = await pool.query(
+    'INSERT INTO monedas (nombre, simbolo, codigo_iso) VALUES ($1,$2,$3) RETURNING *',
+    [nombre, simbolo, codigo_iso || null]
+  );
+  res.status(201).json(result.rows[0]);
+});
+
 module.exports = router;

@@ -188,14 +188,6 @@
         <button class="btn-amber" onclick="crearUsuario()">Crear usuario</button>
       </div>
       <div class="card">
-        <h3>Formato de cédula de este colegio</h3>
-        <p style="font-size:12.3px;color:var(--ink-mute);margin:0 0 8px;">Define qué prefijo aparece por defecto al crear usuarios y estudiantes.</p>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <select id="formatoCedulaColegio" style="flex:1;"></select>
-          <button class="btn-ghost" onclick="guardarFormatoCedula()">Guardar</button>
-        </div>
-      </div>
-      <div class="card">
         <div class="toolbar"><h3 style="margin:0;">Usuarios</h3></div>
         <table id="tablaUsuarios"><tr><th>Nombre</th><th>Rol</th><th>Usuario</th><th>Estado</th><th></th></tr></table>
       </div>
@@ -386,6 +378,27 @@
 
     <div class="view" id="v-config">
       <div class="card">
+        <h3>Formato regional</h3>
+        <p style="font-size:12.3px;color:var(--ink-mute);margin:0 0 10px;">Define el prefijo de cédula y la moneda que usa este colegio en todo el sistema.</p>
+        <div class="grid2">
+          <div class="field">
+            <label>Formato de cédula</label>
+            <div style="display:flex;gap:8px;">
+              <select id="formatoCedulaColegio" style="flex:1;"></select>
+              <button class="btn-ghost" onclick="guardarFormatoCedula()">Guardar</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>Moneda</label>
+            <div style="display:flex;gap:8px;">
+              <select id="monedaColegio" style="flex:1;"></select>
+              <button class="btn-ghost" onclick="guardarMoneda()">Guardar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
         <h3>Año escolar</h3>
         <div class="toolbar">
           <input type="text" id="nuevoAnioEscolar" placeholder="Ej: 2026-2027" style="width:160px;">
@@ -542,7 +555,7 @@ async function cargarTodo(){
     cargarTiposInstrumento(), cargarGrados(), cargarTiposInasistencia(), cargarDocumentos(),
     cargarAniosEscolares(), cargarNivelesGlobal(), cargarPeriodos(), cargarAsignaciones(), cargarDocentesSelect(),
     cargarCalendario(), cargarCirculares(), cargarPagos(), cargarConceptosPagoSelect(), cargarSeccionesAsistencia(),
-    cargarFormatosCedula()]);
+    cargarFormatosCedula(), cargarMonedas()]);
   agregarCriterio(); agregarCriterio();
   renderWizard();
 }
@@ -776,6 +789,29 @@ async function guardarFormatoCedula(){
   await api('/organizaciones/mi-colegio/datos', { method:'PUT', body: JSON.stringify({ formato_cedula_id }) });
   alert('Formato de cédula guardado');
   cargarFormatosCedula();
+}
+
+/* ---------- MONEDA ---------- */
+async function cargarMonedas(){
+  try{
+    const monedas = await api('/catalogos/monedas');
+    if (USUARIO_ACTUAL.rol === 'administrador' || USUARIO_ACTUAL.rol === 'super_admin') {
+      const sel = document.getElementById('monedaColegio');
+      if (sel) {
+        sel.innerHTML = monedas.map(m => '<option value="' + m.id + '">' + m.simbolo + ' — ' + m.nombre + ' (' + m.codigo_iso + ')</option>').join('');
+        if (USUARIO_ACTUAL.rol === 'administrador') {
+          const miColegio = await api('/organizaciones/mi-colegio/datos');
+          if (miColegio.moneda_id) sel.value = miColegio.moneda_id;
+        }
+      }
+    }
+  }catch(e){}
+}
+async function guardarMoneda(){
+  const moneda_id = document.getElementById('monedaColegio').value;
+  await api('/organizaciones/mi-colegio/datos', { method:'PUT', body: JSON.stringify({ moneda_id }) });
+  alert('Moneda guardada');
+  cargarMonedas();
 }
 
 async function cargarMaterias(){

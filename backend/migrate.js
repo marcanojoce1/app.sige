@@ -68,6 +68,23 @@ INSERT INTO formatos_cedula (pais, prefijo, descripcion)
 
 -- Cada colegio elige qué formato de cédula usar
 ALTER TABLE organizaciones ADD COLUMN IF NOT EXISTS formato_cedula_id INTEGER REFERENCES formatos_cedula(id);
+-- Moneda (catálogo global, cada colegio elige cuál usa — igual patrón que formato de cédula)
+CREATE TABLE IF NOT EXISTS monedas (
+  id SERIAL PRIMARY KEY,
+  nombre VARCHAR(60) NOT NULL,
+  simbolo VARCHAR(10) NOT NULL,
+  codigo_iso VARCHAR(6)
+);
+INSERT INTO monedas (nombre, simbolo, codigo_iso)
+  SELECT * FROM (VALUES
+    ('Dólar estadounidense', '$', 'USD'),
+    ('Bolívar venezolano', 'Bs.', 'VES'),
+    ('Peso colombiano', '$', 'COP'),
+    ('Sol peruano', 'S/.', 'PEN')
+  ) AS v(nombre, simbolo, codigo_iso)
+  WHERE NOT EXISTS (SELECT 1 FROM monedas);
+
+ALTER TABLE organizaciones ADD COLUMN IF NOT EXISTS moneda_id INTEGER REFERENCES monedas(id);
 `;
 
 async function main() {
