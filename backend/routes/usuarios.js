@@ -30,7 +30,8 @@ router.get('/', requireAuth, async (req, res) => {
 });
 
 router.post('/', requireAuth, soloDireccion, async (req, res) => {
-  const { nombre_completo, cedula, usuario, password, rol, estudiante_id } = req.body;
+  const { nombre, apellido, cedula, telefono, correo, direccion, cargo, usuario, password, rol, estudiante_id } = req.body;
+  const nombre_completo = [nombre, apellido].filter(Boolean).join(' ') || req.body.nombre_completo;
   const organizacion_id = req.usuario.rol === 'super_admin' ? req.body.organizacion_id : req.usuario.organizacion_id;
 
   const rolRow = await pool.query('SELECT id FROM roles WHERE nombre = $1', [rol]);
@@ -38,9 +39,9 @@ router.post('/', requireAuth, soloDireccion, async (req, res) => {
 
   const hash = await bcrypt.hash(password, 10);
   const result = await pool.query(
-    `INSERT INTO usuarios (organizacion_id, rol_id, nombre_completo, cedula, usuario, password_hash, estudiante_id)
-     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id, nombre_completo, usuario`,
-    [organizacion_id, rolRow.rows[0].id, nombre_completo, cedula || null, usuario, hash, estudiante_id || null]
+    `INSERT INTO usuarios (organizacion_id, rol_id, nombre_completo, nombre, apellido, cedula, telefono, correo, direccion, cargo, usuario, password_hash, estudiante_id)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING id, nombre_completo, usuario`,
+    [organizacion_id, rolRow.rows[0].id, nombre_completo, nombre || null, apellido || null, cedula || null, telefono || null, correo || null, direccion || null, cargo || null, usuario, hash, estudiante_id || null]
   );
 
   if (rol === 'representante' && Array.isArray(req.body.estudiantes_a_cargo)) {
@@ -56,7 +57,20 @@ router.post('/', requireAuth, soloDireccion, async (req, res) => {
 });
 
 router.put('/:id', requireAuth, soloDireccion, async (req, res) => {
-  const { activo, nueva_password } = req.body;
+  const { nombre, apellido, cedula, telefono, correo, direccion, cargo, activo, nueva_password } = req.body;
+  const nombre_completo = (nombre || apellido) ? [nombre, apellido].filter(Boolean).join(' ') : null;
+
+  await pool.query(
+    `UPDATE usuarios SET
+       nombre = COALESCE($1, nombre), apellido = COALESCE($2, apellido),
+       nombre_completo = COALESCE($3, nombre_completo),
+       cedula = COALESCE($4, cedula), telefono = COALESCE($5, telefono),
+       correo = COALESCE($6, correo), direccion = COALESCE($7, direccion),
+       cargo = COALESCE($8, cargo)
+     WHERE id = $9`,
+    [nombre || null, apellido || null, nombre_completo, cedula || null, telefono || null, correo || null, direccion || null, cargo || null, req.params.id]
+  );
+
   if (nueva_password) {
     const hash = await bcrypt.hash(nueva_password, 10);
     await pool.query('UPDATE usuarios SET password_hash = $1, password_temporal = true WHERE id = $2', [hash, req.params.id]);
@@ -98,6 +112,31 @@ router.put('/:id/permisos', requireAuth, soloDireccion, async (req, res) => {
     );
   }
   res.json({ ok: true });
+});
+
+// Buscar un representante existente por cédula (para autocompletar al matricular un estudiante)
+router.get('/buscar-representante', requireAuth, async (req, res) => {
+  const { cedula } = req.query;
+  const result = await pool.query(
+    `SELECT id, nombre_completo, nombre, apellido, telefono, correo, direccion, cedula
+     FROM usuarios
+     WHERE cedula = $1 AND organizacion_id = $2 AND rol_id = (SELECT id FROM roles WHERE nombre = 'representante')`,
+    [cedula, req.usuario.organizacion_id]
+  );
+  if (!result.rows.length) return res.status(404).json({ error: 'No se encontró ningún representante con esa cédula' });
+  res.json(result.rows[0]);
+});
+
+// Obtener un usuario individual (para el formulario de edición) — va DESPUÉS de /buscar-representante a propósito
+router.get('/:id', requireAuth, soloDireccion, async (req, res) => {
+  const result = await pool.query(
+    `SELECT u.id, u.nombre_completo, u.nombre, u.apellido, u.cedula, u.telefono, u.correo, u.direccion, u.cargo,
+            u.usuario, u.activo, r.nombre AS rol, u.organizacion_id
+     FROM usuarios u JOIN roles r ON r.id = u.rol_id WHERE u.id = $1`,
+    [req.params.id]
+  );
+  if (!result.rows.length) return res.status(404).json({ error: 'Usuario no encontrado' });
+  res.json(result.rows[0]);
 });
 
 module.exports = router;

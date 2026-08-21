@@ -224,4 +224,22 @@ router.put('/periodos/:id/reabrir', requireAuth, requirePermiso('configuracion',
   res.json(result.rows[0]);
 });
 
+// ---------- FORMATO DE CÉDULA POR PAÍS ----------
+// Catálogo global — cualquier colegio lo consulta para saber qué prefijo usar
+router.get('/formatos-cedula', requireAuth, async (req, res) => {
+  const result = await pool.query('SELECT * FROM formatos_cedula ORDER BY pais, prefijo');
+  res.json(result.rows);
+});
+
+// Solo el Super Administrador agrega formatos nuevos (para cuando se sume un país nuevo)
+router.post('/formatos-cedula', requireAuth, async (req, res) => {
+  if (req.usuario.rol !== 'super_admin') return res.status(403).json({ error: 'Solo el Super Administrador administra este catálogo' });
+  const { pais, prefijo, descripcion } = req.body;
+  const result = await pool.query(
+    'INSERT INTO formatos_cedula (pais, prefijo, descripcion) VALUES ($1,$2,$3) RETURNING *',
+    [pais, prefijo, descripcion || null]
+  );
+  res.status(201).json(result.rows[0]);
+});
+
 module.exports = router;

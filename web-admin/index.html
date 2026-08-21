@@ -155,7 +155,18 @@
         <h3>Crear usuario</h3>
         <div id="userMsg"></div>
         <div class="grid2">
-          <div class="field"><label>Nombre completo</label><input type="text" id="uNombre"></div>
+          <div class="field"><label>Nombres</label><input type="text" id="uNombres"></div>
+          <div class="field"><label>Apellidos</label><input type="text" id="uApellidos"></div>
+          <div class="field"><label>Cédula</label>
+            <div style="display:flex;gap:6px;">
+              <select id="uCedulaPrefijo" style="width:90px;"></select>
+              <input type="text" id="uCedulaNumero" placeholder="12345678" style="flex:1;">
+            </div>
+          </div>
+          <div class="field"><label>Teléfono</label><input type="text" id="uTelefono"></div>
+          <div class="field"><label>Correo</label><input type="email" id="uCorreo"></div>
+          <div class="field"><label>Dirección</label><input type="text" id="uDireccion"></div>
+          <div class="field"><label>Cargo</label><input type="text" id="uCargo" placeholder="Ej: Docente de Lenguaje"></div>
           <div class="field"><label>Rol</label>
             <select id="uRol">
               <option value="administrador">Administrador (Director)</option>
@@ -177,6 +188,14 @@
         <button class="btn-amber" onclick="crearUsuario()">Crear usuario</button>
       </div>
       <div class="card">
+        <h3>Formato de cédula de este colegio</h3>
+        <p style="font-size:12.3px;color:var(--ink-mute);margin:0 0 8px;">Define qué prefijo aparece por defecto al crear usuarios y estudiantes.</p>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="formatoCedulaColegio" style="flex:1;"></select>
+          <button class="btn-ghost" onclick="guardarFormatoCedula()">Guardar</button>
+        </div>
+      </div>
+      <div class="card">
         <div class="toolbar"><h3 style="margin:0;">Usuarios</h3></div>
         <table id="tablaUsuarios"><tr><th>Nombre</th><th>Rol</th><th>Usuario</th><th>Estado</th><th></th></tr></table>
       </div>
@@ -191,11 +210,27 @@
 
     <div class="view" id="v-students">
       <div class="card">
+        <h3>Buscar representante (opcional — autocompleta dirección y correo)</h3>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="stBuscarRepCedula" placeholder="Cédula del representante" style="flex:1;padding:8px;border:1px solid var(--line);border-radius:6px;">
+          <button class="btn-ghost" onclick="buscarRepresentante()">Buscar</button>
+        </div>
+        <div id="repEncontrado" style="margin-top:8px;font-size:12.5px;"></div>
+      </div>
+      <div class="card">
         <h3>Matricular estudiante</h3>
         <div id="studMsg"></div>
         <div class="grid2">
-          <div class="field"><label>Nombre completo</label><input type="text" id="stNombre"></div>
-          <div class="field"><label>Cédula / partida</label><input type="text" id="stCedula"></div>
+          <div class="field"><label>Nombres</label><input type="text" id="stNombres"></div>
+          <div class="field"><label>Apellidos</label><input type="text" id="stApellidos"></div>
+          <div class="field"><label>Cédula / partida</label>
+            <div style="display:flex;gap:6px;">
+              <select id="stCedulaPrefijo" style="width:90px;"></select>
+              <input type="text" id="stCedulaNumero" style="flex:1;">
+            </div>
+          </div>
+          <div class="field"><label>Teléfono</label><input type="text" id="stTelefono"></div>
+          <div class="field"><label>Dirección <span style="color:var(--ink-mute)">(se completa sola si encontraste al representante)</span></label><input type="text" id="stDireccion"></div>
           <div class="field"><label>Sección</label><select id="stSeccion"></select></div>
         </div>
         <button class="btn-amber" onclick="crearEstudiante()">Matricular</button>
@@ -506,7 +541,8 @@ async function cargarTodo(){
   await Promise.all([cargarUsuarios(), cargarEstudiantes(), cargarSeccionesSelects(), cargarMaterias(), cargarAreas(),
     cargarTiposInstrumento(), cargarGrados(), cargarTiposInasistencia(), cargarDocumentos(),
     cargarAniosEscolares(), cargarNivelesGlobal(), cargarPeriodos(), cargarAsignaciones(), cargarDocentesSelect(),
-    cargarCalendario(), cargarCirculares(), cargarPagos(), cargarConceptosPagoSelect(), cargarSeccionesAsistencia()]);
+    cargarCalendario(), cargarCirculares(), cargarPagos(), cargarConceptosPagoSelect(), cargarSeccionesAsistencia(),
+    cargarFormatosCedula()]);
   agregarCriterio(); agregarCriterio();
   renderWizard();
 }
@@ -547,21 +583,64 @@ async function cargarUsuarios(){
   try{
     const usuarios = await api('/usuarios');
     document.getElementById('tablaUsuarios').innerHTML = '<tr><th>Nombre</th><th>Rol</th><th>Usuario</th><th>Estado</th><th></th></tr>' +
-      usuarios.map(u => '<tr><td>' + u.nombre_completo + '</td><td>' + u.rol + '</td><td>' + u.usuario + '</td><td><span class="tag ' + (u.activo?'green':'gray') + '">' + (u.activo?'Activo':'Inactivo') + '</span></td><td><button class="btn-ghost" onclick="verPermisos(' + u.id + ',\'' + u.nombre_completo.replace(/'/g,"") + '\')">Permisos</button></td></tr>').join('');
+      usuarios.map(u => '<tr><td>' + u.nombre_completo + '</td><td>' + u.rol + '</td><td>' + u.usuario + '</td><td><span class="tag ' + (u.activo?'green':'gray') + '">' + (u.activo?'Activo':'Inactivo') + '</span></td><td style="white-space:nowrap;">' +
+        '<button class="btn-ghost" onclick="editarUsuario(' + u.id + ')">Editar</button> ' +
+        '<button class="btn-ghost" onclick="toggleActivoUsuario(' + u.id + ',' + !u.activo + ')">' + (u.activo?'Inactivar':'Activar') + '</button> ' +
+        '<button class="btn-ghost" onclick="verPermisos(' + u.id + ',\'' + u.nombre_completo.replace(/'/g,"") + '\')">Permisos</button></td></tr>').join('');
   }catch(e){}
+}
+let EDITANDO_USUARIO_ID = null;
+async function editarUsuario(id){
+  const u = await api('/usuarios/' + id);
+  EDITANDO_USUARIO_ID = id;
+  document.getElementById('uNombres').value = u.nombre || '';
+  document.getElementById('uApellidos').value = u.apellido || '';
+  const cedula = u.cedula || '';
+  const prefijoMatch = Array.from(document.getElementById('uCedulaPrefijo').options).find(o => cedula.startsWith(o.value));
+  document.getElementById('uCedulaNumero').value = prefijoMatch ? cedula.slice(prefijoMatch.value.length) : cedula;
+  document.getElementById('uTelefono').value = u.telefono || '';
+  document.getElementById('uCorreo').value = u.correo || '';
+  document.getElementById('uDireccion').value = u.direccion || '';
+  document.getElementById('uCargo').value = u.cargo || '';
+  document.getElementById('uRol').value = u.rol;
+  document.getElementById('uUsuario').value = u.usuario;
+  document.getElementById('uPassword').placeholder = 'Dejar en blanco para no cambiarla';
+  document.querySelector('#v-users .btn-amber').textContent = 'Guardar cambios';
+  window.scrollTo(0,0);
+}
+async function toggleActivoUsuario(id, nuevoEstado){
+  await api('/usuarios/' + id, { method:'PUT', body: JSON.stringify({ activo: nuevoEstado }) });
+  cargarUsuarios();
 }
 async function crearUsuario(){
   try{
     const body = {
-      nombre_completo: document.getElementById('uNombre').value,
-      rol: document.getElementById('uRol').value,
-      usuario: document.getElementById('uUsuario').value,
-      password: document.getElementById('uPassword').value,
+      nombre: document.getElementById('uNombres').value,
+      apellido: document.getElementById('uApellidos').value,
+      cedula: document.getElementById('uCedulaPrefijo').value + document.getElementById('uCedulaNumero').value,
+      telefono: document.getElementById('uTelefono').value,
+      correo: document.getElementById('uCorreo').value,
+      direccion: document.getElementById('uDireccion').value,
+      cargo: document.getElementById('uCargo').value,
     };
-    if (USUARIO_ACTUAL.rol === 'super_admin') body.organizacion_id = document.getElementById('uOrgId').value;
-    await api('/usuarios', { method:'POST', body: JSON.stringify(body) });
-    mostrarMsg('userMsg', 'Usuario creado', 'ok');
-    ['uNombre','uUsuario','uPassword'].forEach(id => document.getElementById(id).value='');
+
+    if (EDITANDO_USUARIO_ID) {
+      const nueva_password = document.getElementById('uPassword').value;
+      if (nueva_password) body.nueva_password = nueva_password;
+      await api('/usuarios/' + EDITANDO_USUARIO_ID, { method:'PUT', body: JSON.stringify(body) });
+      mostrarMsg('userMsg', 'Usuario actualizado', 'ok');
+      EDITANDO_USUARIO_ID = null;
+      document.querySelector('#v-users .btn-amber').textContent = 'Crear usuario';
+      document.getElementById('uPassword').placeholder = '';
+    } else {
+      body.rol = document.getElementById('uRol').value;
+      body.usuario = document.getElementById('uUsuario').value;
+      body.password = document.getElementById('uPassword').value;
+      if (USUARIO_ACTUAL.rol === 'super_admin') body.organizacion_id = document.getElementById('uOrgId').value;
+      await api('/usuarios', { method:'POST', body: JSON.stringify(body) });
+      mostrarMsg('userMsg', 'Usuario creado', 'ok');
+    }
+    ['uNombres','uApellidos','uCedulaNumero','uTelefono','uCorreo','uDireccion','uCargo','uUsuario','uPassword'].forEach(id => document.getElementById(id).value='');
     cargarUsuarios();
   }catch(e){ mostrarMsg('userMsg', e.message, 'err'); }
 }
@@ -604,23 +683,99 @@ async function cargarSeccionesSelects(){
 async function cargarEstudiantes(){
   try{
     const estudiantes = await api('/estudiantes');
-    document.getElementById('tablaEstudiantes').innerHTML = '<tr><th>Nombre</th><th>Grado/Sección</th><th>Estado</th></tr>' +
-      estudiantes.map(e => '<tr><td>' + e.nombre_completo + '</td><td>' + (e.grado||'') + ' ' + (e.seccion||'') + '</td><td><span class="tag green">' + e.estado + '</span></td></tr>').join('');
+    document.getElementById('tablaEstudiantes').innerHTML = '<tr><th>Nombre</th><th>Grado/Sección</th><th>Estado</th><th></th></tr>' +
+      estudiantes.map(e => '<tr><td>' + e.nombre_completo + '</td><td>' + (e.grado||'') + ' ' + (e.seccion||'') + '</td><td><span class="tag ' + (e.estado==='activo'?'green':'gray') + '">' + e.estado + '</span></td><td style="white-space:nowrap;">' +
+        '<button class="btn-ghost" onclick="editarEstudiante(' + e.id + ')">Editar</button> ' +
+        '<button class="btn-ghost" onclick="toggleActivoEstudiante(' + e.id + ',\'' + (e.estado==='activo'?'inactivo':'activo') + '\')">' + (e.estado==='activo'?'Inactivar':'Activar') + '</button></td></tr>').join('');
     const opts = estudiantes.map(e => '<option value="' + e.id + '">' + e.nombre_completo + '</option>').join('');
     document.getElementById('docEstudiante').innerHTML = opts;
   }catch(e){}
 }
+let EDITANDO_ESTUDIANTE_ID = null;
+async function editarEstudiante(id){
+  const e = await api('/estudiantes/' + id);
+  EDITANDO_ESTUDIANTE_ID = id;
+  document.getElementById('stNombres').value = e.nombre || '';
+  document.getElementById('stApellidos').value = e.apellido || '';
+  const cedula = e.cedula_o_partida || '';
+  const prefijoMatch = Array.from(document.getElementById('stCedulaPrefijo').options).find(o => cedula.startsWith(o.value));
+  document.getElementById('stCedulaNumero').value = prefijoMatch ? cedula.slice(prefijoMatch.value.length) : cedula;
+  document.getElementById('stTelefono').value = e.telefono || '';
+  document.getElementById('stDireccion').value = e.direccion || '';
+  if (e.seccion_id) document.getElementById('stSeccion').value = e.seccion_id;
+  document.querySelector('#v-students .btn-amber').textContent = 'Guardar cambios';
+  window.scrollTo(0,0);
+}
+async function toggleActivoEstudiante(id, nuevoEstado){
+  await api('/estudiantes/' + id, { method:'PUT', body: JSON.stringify({ estado: nuevoEstado }) });
+  cargarEstudiantes();
+}
+let REPRESENTANTE_ENCONTRADO = null;
+async function buscarRepresentante(){
+  const cedula = document.getElementById('stBuscarRepCedula').value;
+  const el = document.getElementById('repEncontrado');
+  try{
+    const rep = await api('/usuarios/buscar-representante?cedula=' + encodeURIComponent(cedula));
+    REPRESENTANTE_ENCONTRADO = rep;
+    document.getElementById('stDireccion').value = rep.direccion || '';
+    el.innerHTML = '<div class="msg ok">Encontrado: ' + rep.nombre_completo + ' — se completó la dirección automáticamente.</div>';
+  }catch(e){
+    REPRESENTANTE_ENCONTRADO = null;
+    el.innerHTML = '<div class="msg err">' + e.message + '</div>';
+  }
+}
 async function crearEstudiante(){
   try{
-    await api('/estudiantes', { method:'POST', body: JSON.stringify({
-      nombre_completo: document.getElementById('stNombre').value,
-      cedula_o_partida: document.getElementById('stCedula').value,
+    const body = {
+      nombre: document.getElementById('stNombres').value,
+      apellido: document.getElementById('stApellidos').value,
+      cedula_o_partida: document.getElementById('stCedulaPrefijo').value + document.getElementById('stCedulaNumero').value,
+      telefono: document.getElementById('stTelefono').value,
+      direccion: document.getElementById('stDireccion').value,
       seccion_id: document.getElementById('stSeccion').value || null,
-    })});
-    mostrarMsg('studMsg', 'Estudiante matriculado', 'ok');
-    document.getElementById('stNombre').value=''; document.getElementById('stCedula').value='';
+    };
+
+    if (EDITANDO_ESTUDIANTE_ID) {
+      await api('/estudiantes/' + EDITANDO_ESTUDIANTE_ID, { method:'PUT', body: JSON.stringify(body) });
+      mostrarMsg('studMsg', 'Estudiante actualizado', 'ok');
+      EDITANDO_ESTUDIANTE_ID = null;
+      document.querySelector('#v-students .btn-amber').textContent = 'Matricular';
+    } else {
+      body.representante_id = REPRESENTANTE_ENCONTRADO ? REPRESENTANTE_ENCONTRADO.id : null;
+      await api('/estudiantes', { method:'POST', body: JSON.stringify(body) });
+      mostrarMsg('studMsg', 'Estudiante matriculado', 'ok');
+    }
+    ['stNombres','stApellidos','stCedulaNumero','stTelefono','stDireccion','stBuscarRepCedula'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('repEncontrado').innerHTML = '';
+    REPRESENTANTE_ENCONTRADO = null;
     cargarEstudiantes();
   }catch(e){ mostrarMsg('studMsg', e.message, 'err'); }
+}
+
+/* ---------- FORMATO DE CÉDULA POR PAÍS ---------- */
+async function cargarFormatosCedula(){
+  try{
+    const formatos = await api('/catalogos/formatos-cedula');
+    const opts = formatos.map(f => '<option value="' + f.prefijo + '">' + f.prefijo + ' (' + f.pais + ')</option>').join('');
+    ['uCedulaPrefijo','stCedulaPrefijo'].forEach(id => { const el = document.getElementById(id); if(el) el.innerHTML = opts; });
+
+    if (USUARIO_ACTUAL.rol === 'administrador' || USUARIO_ACTUAL.rol === 'super_admin') {
+      const selConfig = document.getElementById('formatoCedulaColegio');
+      if (selConfig) {
+        selConfig.innerHTML = formatos.map(f => '<option value="' + f.id + '">' + f.descripcion + '</option>').join('');
+        if (USUARIO_ACTUAL.rol === 'administrador') {
+          const miColegio = await api('/organizaciones/mi-colegio/datos');
+          if (miColegio.formato_cedula_id) selConfig.value = miColegio.formato_cedula_id;
+        }
+      }
+    }
+  }catch(e){}
+}
+async function guardarFormatoCedula(){
+  const formato_cedula_id = document.getElementById('formatoCedulaColegio').value;
+  await api('/organizaciones/mi-colegio/datos', { method:'PUT', body: JSON.stringify({ formato_cedula_id }) });
+  alert('Formato de cédula guardado');
+  cargarFormatosCedula();
 }
 
 async function cargarMaterias(){

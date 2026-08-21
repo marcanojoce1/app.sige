@@ -33,14 +33,20 @@ router.put('/:id', requireAuth, soloSuperAdmin, async (req, res) => {
   res.json(result.rows[0]);
 });
 
+router.get('/mi-colegio/datos', requireAuth, async (req, res) => {
+  const result = await pool.query('SELECT * FROM organizaciones WHERE id = $1', [req.usuario.organizacion_id]);
+  res.json(result.rows[0]);
+});
+
 router.put('/mi-colegio/datos', requireAuth, async (req, res) => {
   if (req.usuario.rol !== 'administrador') return res.status(403).json({ error: 'Solo el Administrador del colegio' });
-  const { logo_url, direccion, condiciones_boletin, pie_pagina } = req.body;
+  const { logo_url, direccion, condiciones_boletin, pie_pagina, formato_cedula_id } = req.body;
   const result = await pool.query(
     `UPDATE organizaciones SET logo_url = COALESCE($1, logo_url), direccion = COALESCE($2, direccion),
-     condiciones_boletin = COALESCE($3, condiciones_boletin), pie_pagina = COALESCE($4, pie_pagina)
-     WHERE id = $5 RETURNING *`,
-    [logo_url, direccion, condiciones_boletin, pie_pagina, req.usuario.organizacion_id]
+     condiciones_boletin = COALESCE($3, condiciones_boletin), pie_pagina = COALESCE($4, pie_pagina),
+     formato_cedula_id = COALESCE($5, formato_cedula_id)
+     WHERE id = $6 RETURNING *`,
+    [logo_url, direccion, condiciones_boletin, pie_pagina, formato_cedula_id, req.usuario.organizacion_id]
   );
   res.json(result.rows[0]);
 });

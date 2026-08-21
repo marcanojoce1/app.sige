@@ -35,6 +35,39 @@ CREATE TABLE IF NOT EXISTS periodos (
   fecha_cierre TIMESTAMP,
   fecha_publicacion TIMESTAMP
 );
+-- Datos ampliados del usuario (Nombres, Apellidos, Teléfono, Correo, Dirección, Cargo)
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS nombre VARCHAR(80);
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS apellido VARCHAR(80);
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS telefono VARCHAR(30);
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS correo VARCHAR(120);
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS direccion TEXT;
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS cargo VARCHAR(80);
+
+-- Datos ampliados del estudiante
+ALTER TABLE estudiantes ADD COLUMN IF NOT EXISTS nombre VARCHAR(80);
+ALTER TABLE estudiantes ADD COLUMN IF NOT EXISTS apellido VARCHAR(80);
+ALTER TABLE estudiantes ADD COLUMN IF NOT EXISTS telefono VARCHAR(30);
+ALTER TABLE estudiantes ADD COLUMN IF NOT EXISTS correo VARCHAR(120);
+ALTER TABLE estudiantes ADD COLUMN IF NOT EXISTS direccion TEXT;
+
+-- Formato de cédula por país (catálogo global, lo administra el Super Administrador)
+CREATE TABLE IF NOT EXISTS formatos_cedula (
+  id SERIAL PRIMARY KEY,
+  pais VARCHAR(60) NOT NULL,
+  prefijo VARCHAR(10) NOT NULL,
+  descripcion VARCHAR(60)
+);
+INSERT INTO formatos_cedula (pais, prefijo, descripcion)
+  SELECT * FROM (VALUES
+    ('Venezuela', 'V-', 'Cédula venezolana (V-)'),
+    ('Venezuela', 'E-', 'Cédula de extranjero (E-)'),
+    ('Colombia', 'CC-', 'Cédula de ciudadanía'),
+    ('Perú', 'DNI-', 'Documento Nacional de Identidad')
+  ) AS v(pais, prefijo, descripcion)
+  WHERE NOT EXISTS (SELECT 1 FROM formatos_cedula);
+
+-- Cada colegio elige qué formato de cédula usar
+ALTER TABLE organizaciones ADD COLUMN IF NOT EXISTS formato_cedula_id INTEGER REFERENCES formatos_cedula(id);
 `;
 
 async function main() {
